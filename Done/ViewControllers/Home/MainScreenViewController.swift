@@ -10,13 +10,16 @@
 import UIKit
 import SnapKit
 
+
 class MainScreenViewController: UIViewController {
+    
+    let goBackButton = AppButtons()
     let bottomSheet = UIView()
-    let goBackButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.setTitle(GoBackStrings.goBackButtonTittle.rawValue, for: .normal)
-        return button
-    }()
+//    let goBackButton: UIButton = {
+//        let button = UIButton(type: .system)
+//        button.setTitle(GoBackStrings.goBackButtonTittle.rawValue, for: .normal)
+//        return button
+//    }()
     override func viewDidLoad() {
         configureUI()
     
