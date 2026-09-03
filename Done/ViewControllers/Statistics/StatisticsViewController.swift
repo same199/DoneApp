@@ -10,8 +10,42 @@
 import UIKit
 
 class StatisticsViewController: UIViewController {
-    override func viewDidLoad() {
     
+    let navigationBar = AppNavigationBar()
+    let goBackButton = BackButtons()
+    override func viewDidLoad() {
+        configureUI()
         super.viewDidLoad()
         }
+    
+    func configureUI() {
+        view.backgroundColor = .gray
+        view.addSubview(navigationBar)
+        navigationBar.snp.makeConstraints { make in
+            make.width.equalToSuperview()
+            make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
+            make.height.equalTo(60)
+        }
+        navigationBar.addSubview(goBackButton)
+        goBackButton.setTitle(GoBackStrings.goBackButtonTittle.rawValue, for: .normal)
+        goBackButton.setTitleColor(.black, for: .normal)
+        goBackButton.snp.makeConstraints { make in
+            make.left.equalToSuperview().offset(16)
+            make.centerY.equalToSuperview()
+            make.top.equalToSuperview().offset(4)
+            make.bottom.equalToSuperview().offset(-4)
+            make.width.equalTo(50)
+        }
+        goBackButton.addTarget(self, action: #selector(backButtonTapped( _:)), for: .touchUpInside)
+    }
+    
+    private func goBack() {
+        navigationController?.popViewController(animated: true)
+    }
+    
+    @objc private func backButtonTapped(_ Sender: UIButton ) {
+        goBack()
+    }
 }
+
+

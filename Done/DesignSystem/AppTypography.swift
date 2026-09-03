@@ -25,5 +25,6 @@ public enum AppTypography {
     static let button = UIFont.systemFont(
         ofSize: 16,
         weight: .semibold
+        
     )
 }
