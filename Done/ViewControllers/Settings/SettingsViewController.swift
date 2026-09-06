@@ -8,11 +8,13 @@
 
 
 import UIKit
+import SnapKit
 
 class SettingsViewController: UIViewController {
     
-    let navigationBar = AppNavigationBar()
-    let goBackButton = BackButtons()
+    private let navigationBar = AppNavigationBar()
+    private let goBackButton = BackButtons()
+    private let screenNameLabel = ScreenTitleLabel()
     
     override func viewDidLoad() {
         configureUI()
@@ -38,6 +40,12 @@ class SettingsViewController: UIViewController {
             make.width.equalTo(50)
         }
         goBackButton.addTarget(self, action: #selector(backButtonTapped( _:)), for: .touchUpInside)
+        
+        navigationBar.addSubview(screenNameLabel)
+        screenNameLabel.snp.makeConstraints { make in
+            make.center.equalToSuperview()
+        }
+        screenNameLabel.text = ScreenNamesTitleStrings.settingsScreenTitle.rawValue
     }
     
     private func goBack() {

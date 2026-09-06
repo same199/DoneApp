@@ -13,12 +13,13 @@ import SnapKit
 
 class MainScreenViewController: UIViewController {
     
-    let goBackButton = BackButtons()
-    let goToSettingsButton = AppButtons()
-    let goToAddTaskButton = AppButtons()
-    let goToStatisticsButton = AppButtons()
-    let navigationBar = AppNavigationBar()
-    let navigationButtonBlock = UIView()
+    private let goBackButton = BackButtons()
+    private let goToSettingsButton = AppButtons()
+    private let goToAddTaskButton = AppButtons()
+    private let goToStatisticsButton = AppButtons()
+    private let navigationBar = AppNavigationBar()
+    private let screenNameLabel = ScreenTitleLabel()
+    private let navigationButtonBlock = UIView()
     
     override func viewDidLoad() {
         configureUI()
@@ -44,6 +45,11 @@ class MainScreenViewController: UIViewController {
             make.width.equalTo(50)
         }
         goBackButton.addTarget(self, action: #selector(backButtonTapped( _:)), for: .touchUpInside)
+        navigationBar.addSubview(screenNameLabel)
+        screenNameLabel.snp.makeConstraints { make in
+            make.center.equalToSuperview()
+        }
+        screenNameLabel.text = ScreenNamesTitleStrings.mainScreenTitle.rawValue
         
         
         view.addSubview(navigationButtonBlock)

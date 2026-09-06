@@ -8,11 +8,13 @@
 
 
 import UIKit
+import SnapKit
 
 class StatisticsViewController: UIViewController {
     
-    let navigationBar = AppNavigationBar()
-    let goBackButton = BackButtons()
+    private let navigationBar = AppNavigationBar()
+    private let screenNameLabel = ScreenTitleLabel()
+    private let goBackButton = BackButtons()
     override func viewDidLoad() {
         configureUI()
         super.viewDidLoad()
@@ -37,6 +39,12 @@ class StatisticsViewController: UIViewController {
             make.width.equalTo(50)
         }
         goBackButton.addTarget(self, action: #selector(backButtonTapped( _:)), for: .touchUpInside)
+        
+        navigationBar.addSubview(screenNameLabel)
+        screenNameLabel.snp.makeConstraints { make in
+            make.center.equalToSuperview()
+        }
+        screenNameLabel.text = ScreenNamesTitleStrings.statisticsScreenTitle.rawValue
     }
     
     private func goBack() {

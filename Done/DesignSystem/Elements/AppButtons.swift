@@ -66,7 +66,6 @@ final class AddTaskButton: UIButton {
 
     private func setupUI() {
         backgroundColor = .white
-        layer.borderWidth = 1
         setTitleColor(.black, for: .normal)
         titleLabel?.font = AppTypography.button
     }

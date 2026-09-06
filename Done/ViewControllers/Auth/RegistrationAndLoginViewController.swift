@@ -8,19 +8,26 @@
 import UIKit
 import SnapKit
 
-class RegistrationViewController: UIViewController {
+class RegistrationAndLoginViewController: UIViewController {
     
-    let bottomSheet = UIView()
-    let registrationButton: UIButton = {
+    private let bottomSheet = UIView()
+    private let registrationButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle(LoginAndRegistrationViewStrings.registrationButtoTittle.rawValue, for: .normal)
         return button
     }()
+    private let loginButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle(LoginAndRegistrationViewStrings.loginButtonTittle.rawValue, for: .normal)
+        return button
+    }()
     
     override func viewDidLoad() {
-        super.viewDidLoad()
-        configureUI()
+    super.viewDidLoad()
+
+    configureUI()
     }
+
     
     
     func configureUI() {
@@ -37,11 +44,19 @@ class RegistrationViewController: UIViewController {
         
         bottomSheet.addSubview(registrationButton)
         registrationButton.snp.makeConstraints { make in
-            make.center.equalToSuperview()
+            make.centerX.equalToSuperview()
+            make.top.equalToSuperview().offset(16)
             make.width.equalTo(200)
             make.height.equalTo(50)
         }
         registrationButton.addTarget(self, action: #selector(registrationButtonTapped( _:)), for: .touchUpInside)
+        bottomSheet.addSubview(loginButton)
+        loginButton.snp.makeConstraints { make in
+            make.centerX.equalTo(registrationButton)
+            make.top.equalTo(registrationButton.snp.bottom).offset(16)
+            make.width.equalTo(registrationButton)
+            make.height.equalTo(registrationButton)
+        }
     }
     
     private func goToMainScreen() {
@@ -52,5 +67,4 @@ class RegistrationViewController: UIViewController {
     @objc private func registrationButtonTapped(_ Sender: UIButton ) {
         goToMainScreen()
     }
-    
 }

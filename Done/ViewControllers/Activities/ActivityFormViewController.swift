@@ -8,19 +8,37 @@
 
 
 import UIKit
+import SnapKit
 
 class ActivityFormViewController: UIViewController {
-    let navigationBar = AppNavigationBar()
-    let goBackButton = BackButtons()
-    let addTask = AddTaskButton()
+    private let navigationBar = AppNavigationBar()
+    private let screenNameLabel = ScreenTitleLabel()
+    private let goBackButton = BackButtons()
+    private let addTaskView = AddTaskView()
+    
+    private var addTaskWidthConstraint: Constraint?
+    private var addTaskHeightConstraint: Constraint?
+
+    private var containerBottomConstraint: Constraint?
+    
+    private let containerView = UIView()
     override func viewDidLoad() {
-        configureUI()
         super.viewDidLoad()
+        configureUI()
+        setupAddTaskView()
+        setupTapGesture()
+        setupKeyboardObservers()
         }
     
     func configureUI() {
         view.backgroundColor = .blue
-        view.addSubview(navigationBar)
+        view.addSubview(containerView)
+        containerView.backgroundColor = .blue
+        containerView.snp.makeConstraints { make in
+            make.top.leading.trailing.equalToSuperview()
+            containerBottomConstraint = make.bottom.equalToSuperview().constraint
+        }
+        containerView.addSubview(navigationBar)
         navigationBar.snp.makeConstraints { make in
             make.width.equalToSuperview()
             make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
@@ -37,15 +55,136 @@ class ActivityFormViewController: UIViewController {
             make.width.equalTo(50)
         }
         goBackButton.addTarget(self, action: #selector(backButtonTapped( _:)), for: .touchUpInside)
-        view.addSubview(addTask)
-        addTask.setTitle("+", for: .normal)
-        addTask.snp.makeConstraints { make in
-            make.size.equalTo(56)
-            make.trailing.equalToSuperview().inset(20)
-            make.bottom.equalTo(view.safeAreaLayoutGuide).inset(20)
-               }
+        
+        navigationBar.addSubview(screenNameLabel)
+        screenNameLabel.snp.makeConstraints { make in
+            make.center.equalToSuperview()
+        }
+        screenNameLabel.text = ScreenNamesTitleStrings.taskListScreenTitle.rawValue
     }
     
+    private func setupAddTaskView() {
+        containerView.addSubview(addTaskView)
+
+        addTaskView.snp.makeConstraints { make in
+            addTaskWidthConstraint = make.width.equalTo(56).constraint
+            addTaskHeightConstraint = make.height.equalTo(56).constraint
+
+            make.trailing.equalToSuperview().inset(20)
+            make.bottom.equalToSuperview().inset(20)
+        }
+
+        addTaskView.onStateChanged = { [weak self] isExpanded in
+            self?.updateAddTaskViewSize(
+                isExpanded: isExpanded,
+                animated: true
+            )
+        }
+    }
+    
+    private func updateAddTaskViewSize(
+        isExpanded: Bool,
+        animated: Bool
+    ) {
+        let width: CGFloat = isExpanded ? 350 : 56
+        let height: CGFloat = isExpanded ? 300 : 56
+
+        addTaskWidthConstraint?.update(offset: width)
+        addTaskHeightConstraint?.update(offset: height)
+
+        let animations = {
+            self.view.layoutIfNeeded()
+        }
+
+        if animated {
+            UIView.animate(
+                withDuration: 0.35,
+                delay: 0,
+                usingSpringWithDamping: 0.85,
+                initialSpringVelocity: 0.5,
+                animations: animations
+            )
+        } else {
+            animations()
+        }
+    }
+    
+    private func setupTapGesture() {
+        let tapGesture = UITapGestureRecognizer(
+            target: self,
+            action: #selector(handleScreenTap(_:))
+        )
+
+        view.addGestureRecognizer(tapGesture)
+    }
+
+    @objc private func handleScreenTap(_ gesture: UITapGestureRecognizer) {
+        let location = gesture.location(in: view)
+
+        guard !addTaskView.frame.contains(location) else {
+            return
+        }
+
+        addTaskView.collapse()
+        view.endEditing(true)
+    }
+    
+    private func setupKeyboardObservers() {
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(keyboardWillShow(_:)),
+            name: UIResponder.keyboardWillShowNotification,
+            object: nil
+        )
+
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(keyboardWillHide(_:)),
+            name: UIResponder.keyboardWillHideNotification,
+            object: nil
+        )
+    }
+    
+    @objc private func keyboardWillShow(_ notification: Notification) {
+        guard
+            let userInfo = notification.userInfo,
+            let keyboardFrame = userInfo[
+                UIResponder.keyboardFrameEndUserInfoKey
+            ] as? CGRect,
+            let duration = userInfo[
+                UIResponder.keyboardAnimationDurationUserInfoKey
+            ] as? TimeInterval
+        else {
+            return
+        }
+
+        let keyboardHeight = keyboardFrame.height
+
+        containerBottomConstraint?.update(
+            offset: -keyboardHeight
+        )
+
+        UIView.animate(withDuration: duration) {
+            self.view.layoutIfNeeded()
+        }
+    }
+    
+    @objc private func keyboardWillHide(_ notification: Notification) {
+        guard
+            let userInfo = notification.userInfo,
+            let duration = userInfo[
+                UIResponder.keyboardAnimationDurationUserInfoKey
+            ] as? TimeInterval
+        else {
+            return
+        }
+
+        containerBottomConstraint?.update(offset: 0)
+
+        UIView.animate(withDuration: duration) {
+            self.view.layoutIfNeeded()
+        }
+    }
     
     
     private func goBack() {
@@ -54,5 +193,9 @@ class ActivityFormViewController: UIViewController {
     
     @objc private func backButtonTapped(_ Sender: UIButton ) {
         goBack()
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
 }
