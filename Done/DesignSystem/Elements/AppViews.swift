@@ -86,24 +86,7 @@ final class AddTaskView: UIView {
         titleTextField.alpha = 0
         saveButton.alpha = 0
     }
-
-//    private func setupConstraints() {
-//        addButton.snp.makeConstraints { make in
-//            make.center.equalToSuperview()
-//            make.size.equalTo(Constants.collapsedSize)
-//        }
-//
-//        titleTextField.snp.makeConstraints { make in
-//            make.top.equalToSuperview().inset(24)
-//            make.leading.equalToSuperview().inset(20)
-//            make.trailing.equalTo(addButton.snp.leading).offset(-12)
-//            make.height.equalTo(44)
-//        }
-//
-//        saveButton.snp.makeConstraints { make in
-//            make.bottom.trailing.equalToSuperview().inset(20)
-//        }
-//    }
+    
     private func setupConstraints() {
 
         addButton.snp.makeConstraints { make in

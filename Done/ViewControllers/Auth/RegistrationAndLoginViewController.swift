@@ -10,61 +10,102 @@ import SnapKit
 
 class RegistrationAndLoginViewController: UIViewController {
     
-    private let bottomSheet = UIView()
-    private let registrationButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.setTitle(LoginAndRegistrationViewStrings.registrationButtoTittle.rawValue, for: .normal)
-        return button
-    }()
-    private let loginButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.setTitle(LoginAndRegistrationViewStrings.loginButtonTittle.rawValue, for: .normal)
-        return button
-    }()
+    //    private let bottomSheet = UIView()
+    private let authAndRegisterBottomSheet = AuthBottomSheetView()
+    private var bottomSheetBottomConstraint: Constraint?
     
     override func viewDidLoad() {
-    super.viewDidLoad()
-
-    configureUI()
+        super.viewDidLoad()
+        
+        configureUI()
+        setupKeyboardObservers()
     }
-
+    
     
     
     func configureUI() {
         view.backgroundColor = .systemPink
-        view.addSubview(bottomSheet)
-        bottomSheet.backgroundColor = .white
-        bottomSheet.layer.cornerRadius = 16
-        bottomSheet.snp.makeConstraints { make in
-            make.centerX.equalToSuperview()
-            make.bottom.equalToSuperview()
+        view.addSubview(authAndRegisterBottomSheet)
+        authAndRegisterBottomSheet.backgroundColor = .white
+        authAndRegisterBottomSheet.layer.cornerRadius = 16
+        authAndRegisterBottomSheet.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview()
+            bottomSheetBottomConstraint = make.bottom.equalToSuperview().constraint
             make.height.equalTo(150)
-            make.width.equalToSuperview()
         }
+    }
+    
+    private func setupKeyboardObservers() {
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(keyboardWillShow(_:)),
+            name: UIResponder.keyboardWillShowNotification,
+            object: nil
+        )
+
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(keyboardWillHide(_:)),
+            name: UIResponder.keyboardWillHideNotification,
+            object: nil
+        )
+    }
+    
+    
+//    private func goToMainScreen() {
+//        let controller = MainScreenViewController()
+//        navigationController?.pushViewController(controller, animated: true)
+//    }
+//    
+//    @objc private func registrationButtonTapped(_ Sender: UIButton ) {
+//        goToMainScreen()
+//    }
+    
+    @objc private func keyboardWillShow(_ notification: Notification) {
         
-        bottomSheet.addSubview(registrationButton)
-        registrationButton.snp.makeConstraints { make in
-            make.centerX.equalToSuperview()
-            make.top.equalToSuperview().offset(16)
-            make.width.equalTo(200)
-            make.height.equalTo(50)
+        guard
+            let userInfo = notification.userInfo,
+            let keyboardFrame = userInfo[
+                UIResponder.keyboardFrameEndUserInfoKey
+            ] as? CGRect,
+            let duration = userInfo[
+                UIResponder.keyboardAnimationDurationUserInfoKey
+            ] as? TimeInterval
+        else {
+            return
         }
-        registrationButton.addTarget(self, action: #selector(registrationButtonTapped( _:)), for: .touchUpInside)
-        bottomSheet.addSubview(loginButton)
-        loginButton.snp.makeConstraints { make in
-            make.centerX.equalTo(registrationButton)
-            make.top.equalTo(registrationButton.snp.bottom).offset(16)
-            make.width.equalTo(registrationButton)
-            make.height.equalTo(registrationButton)
+
+        let keyboardHeight = keyboardFrame.height
+
+        bottomSheetBottomConstraint?.update(
+            offset: -keyboardHeight
+        )
+
+        UIView.animate(withDuration: duration) {
+            self.view.layoutIfNeeded()
         }
     }
     
-    private func goToMainScreen() {
-        let controller = MainScreenViewController()
-        navigationController?.pushViewController(controller, animated: true)
+    @objc private func keyboardWillHide(_ notification: Notification) {
+        
+        guard
+            let userInfo = notification.userInfo,
+            let duration = userInfo[
+                UIResponder.keyboardAnimationDurationUserInfoKey
+            ] as? TimeInterval
+        else {
+            return
+        }
+
+        bottomSheetBottomConstraint?.update(offset: 0)
+
+        UIView.animate(withDuration: duration) {
+            self.view.layoutIfNeeded()
+        }
     }
     
-    @objc private func registrationButtonTapped(_ Sender: UIButton ) {
-        goToMainScreen()
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
+    
 }
