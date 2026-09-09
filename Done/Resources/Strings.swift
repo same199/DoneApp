@@ -18,7 +18,7 @@ public enum GoBackStrings: String {
 }
 
 public enum NavigationButtonsStrings: String {
-    case addTaskButtonTitle = "Add task"
+    case addTaskButtonTitle = "Tasks"
     case settingsButtonTitle = "Settings"
     case statisticsButtonTitle = "Statistics"
 }

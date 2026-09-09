@@ -42,11 +42,13 @@ final class BackButtons: UIButton {
     private func setupUI() {
         
         backgroundColor = .white
-        layer.borderWidth = 1
         setTitleColor(.white, for: .normal)
         titleLabel?.font = AppTypography.button
         layer.cornerRadius = 16
-        
+        setImage(UIImage(systemName: "arrow.backward"),
+                 for: .normal
+        )
+        tintColor = .black
     }
 }
 

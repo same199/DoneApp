@@ -45,7 +45,6 @@ class ActivityFormViewController: UIViewController {
             make.height.equalTo(60)
         }
         navigationBar.addSubview(goBackButton)
-        goBackButton.setTitle(GoBackStrings.goBackButtonTittle.rawValue, for: .normal)
         goBackButton.setTitleColor(.black, for: .normal)
         goBackButton.snp.makeConstraints { make in
             make.left.equalToSuperview().offset(16)
@@ -64,22 +63,27 @@ class ActivityFormViewController: UIViewController {
     }
     
     private func setupAddTaskView() {
+
         containerView.addSubview(addTaskView)
 
         addTaskView.snp.makeConstraints { make in
-            addTaskWidthConstraint = make.width.equalTo(56).constraint
-            addTaskHeightConstraint = make.height.equalTo(56).constraint
 
-            make.trailing.equalToSuperview().inset(20)
-            make.bottom.equalToSuperview().inset(20)
+            addTaskWidthConstraint =
+                make.width.equalTo(56).constraint
+
+            addTaskHeightConstraint =
+                make.height.equalTo(56).constraint
+
+            make.trailing
+                .equalToSuperview()
+                .inset(20)
+
+            make.bottom
+                .equalToSuperview()
+                .inset(20)
         }
 
-        addTaskView.onStateChanged = { [weak self] isExpanded in
-            self?.updateAddTaskViewSize(
-                isExpanded: isExpanded,
-                animated: true
-            )
-        }
+        addTaskView.delegate = self
     }
     
     private func updateAddTaskViewSize(
@@ -197,5 +201,27 @@ class ActivityFormViewController: UIViewController {
     
     deinit {
         NotificationCenter.default.removeObserver(self)
+    }
+}
+
+extension ActivityFormViewController: AddTaskViewDelegate {
+
+    func addTaskViewDidChangeState(
+        _ view: AddTaskView,
+        isExpanded: Bool
+    ) {
+
+        updateAddTaskViewSize(
+            isExpanded: isExpanded,
+            animated: true
+        )
+    }
+
+    func addTaskView(
+        _ view: AddTaskView,
+        didTapSaveWith title: String
+    ) {
+
+        print("Save task:", title)
     }
 }

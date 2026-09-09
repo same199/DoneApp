@@ -29,7 +29,6 @@ class StatisticsViewController: UIViewController {
             make.height.equalTo(60)
         }
         navigationBar.addSubview(goBackButton)
-        goBackButton.setTitle(GoBackStrings.goBackButtonTittle.rawValue, for: .normal)
         goBackButton.setTitleColor(.black, for: .normal)
         goBackButton.snp.makeConstraints { make in
             make.left.equalToSuperview().offset(16)

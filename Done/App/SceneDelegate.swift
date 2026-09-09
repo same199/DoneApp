@@ -17,7 +17,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window = UIWindow(windowScene: windowScene)
         
         let controller = RegistrationAndLoginViewController()
-//        let controller = MainScreenViewController()
         let navigationController = UINavigationController(rootViewController: controller)
         navigationController.setNavigationBarHidden(true, animated: false)
         window?.rootViewController = navigationController

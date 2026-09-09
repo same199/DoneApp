@@ -8,9 +8,8 @@
 import UIKit
 import SnapKit
 
-class RegistrationAndLoginViewController: UIViewController {
+class RegistrationAndLoginViewController: UIViewController, AuthBottomSheetViewDelegate {
     
-    //    private let bottomSheet = UIView()
     private let authAndRegisterBottomSheet = AuthBottomSheetView()
     private var bottomSheetBottomConstraint: Constraint?
     
@@ -18,11 +17,10 @@ class RegistrationAndLoginViewController: UIViewController {
         super.viewDidLoad()
         
         configureUI()
+        authAndRegisterBottomSheet.delegate = self
         setupKeyboardObservers()
     }
-    
-    
-    
+
     func configureUI() {
         view.backgroundColor = .systemPink
         view.addSubview(authAndRegisterBottomSheet)
@@ -33,6 +31,11 @@ class RegistrationAndLoginViewController: UIViewController {
             bottomSheetBottomConstraint = make.bottom.equalToSuperview().constraint
             make.height.equalTo(150)
         }
+    }
+    
+    private func goToMainScreen() {
+        let controller = MainScreenViewController()
+        navigationController?.pushViewController(controller, animated: true)
     }
     
     private func setupKeyboardObservers() {
@@ -50,16 +53,6 @@ class RegistrationAndLoginViewController: UIViewController {
             object: nil
         )
     }
-    
-    
-//    private func goToMainScreen() {
-//        let controller = MainScreenViewController()
-//        navigationController?.pushViewController(controller, animated: true)
-//    }
-//    
-//    @objc private func registrationButtonTapped(_ Sender: UIButton ) {
-//        goToMainScreen()
-//    }
     
     @objc private func keyboardWillShow(_ notification: Notification) {
         
@@ -108,4 +101,45 @@ class RegistrationAndLoginViewController: UIViewController {
         NotificationCenter.default.removeObserver(self)
     }
     
+    func authBottomSheetDidTapLogin() {
+        authAndRegisterBottomSheet.showLogin()
+    }
+
+    func authBottomSheetDidTapRegistration() {
+        authAndRegisterBottomSheet.showRegistration()
+    }
+
+    func authBottomSheetDidTapClose() {
+        closeAuthBottomSheet()
+    }
+    
+    private func closeAuthBottomSheet() {
+        authAndRegisterBottomSheet.endEditing(true)
+        authAndRegisterBottomSheet.showStart()
+    }
+
+    func authBottomSheetDidTapLoginSubmit(
+        login: String,
+        password: String
+    ) {
+        print("LOGIN")
+        print(login)
+        print(password)
+        goToMainScreen()
+        closeAuthBottomSheet()
+    }
+
+    func authBottomSheetDidTapRegistrationSubmit(
+        firstName: String,
+        lastName: String,
+        email: String
+    ) {
+        print("REGISTRATION")
+        print(firstName)
+        print(lastName)
+        print(email)
+        
+        goToMainScreen()
+        closeAuthBottomSheet()
+    }
 }

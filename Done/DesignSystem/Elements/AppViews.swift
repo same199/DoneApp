@@ -8,31 +8,35 @@
 import UIKit
 import SnapKit
 
-final class AddTaskView: UIView {
 
+final class AddTaskView: UIView {
+    
     // MARK: - Constants
 
     private enum Constants {
         static let collapsedSize: CGFloat = 56
-        static let expandedHeight: CGFloat = 300
-        static let expandedWidth: CGFloat = 350
         static let cornerRadius: CGFloat = 28
+
+        static let expandedCornerRadius: CGFloat = 20
     }
 
     // MARK: - UI
 
     private let addButton = AddTaskButton()
-    private var titleTextFieldTrailingConstraint: Constraint?
+
     private let titleTextField = UITextField()
+
     private let saveButton = UIButton()
+
+    private var titleTextFieldTrailingConstraint: Constraint?
 
     // MARK: - State
 
     private var isExpanded = false
 
-    // MARK: - Callback
+    // MARK: - Delegate
 
-    var onStateChanged: ((Bool) -> Void)?
+    weak var delegate: AddTaskViewDelegate?
 
     // MARK: - Init
 
@@ -53,13 +57,21 @@ final class AddTaskView: UIView {
     // MARK: - Setup
 
     private func setupUI() {
+
         backgroundColor = .white
+
         layer.cornerRadius = Constants.cornerRadius
+
         clipsToBounds = true
 
-        addButton.setTitle("+", for: .normal)
-        addButton.setTitleColor(.black, for: .normal)
-        addButton.titleLabel?.font = .systemFont(ofSize: 28)
+        // MARK: Add button
+
+        addButton.setImage(
+            UIImage(systemName: "plus"),
+            for: .normal
+        )
+
+        addButton.tintColor = .black
 
         addButton.addTarget(
             self,
@@ -67,11 +79,27 @@ final class AddTaskView: UIView {
             for: .touchUpInside
         )
 
+        // MARK: Title text field
+
         titleTextField.placeholder = "Название цели"
+
         titleTextField.borderStyle = .roundedRect
 
-        saveButton.setTitle("Добавить", for: .normal)
-        saveButton.setTitleColor(.black, for: .normal)
+        titleTextField.alpha = 0
+
+        // MARK: Save button
+
+        saveButton.setTitle(
+            "Добавить",
+            for: .normal
+        )
+
+        saveButton.setTitleColor(
+            .black,
+            for: .normal
+        )
+
+        saveButton.alpha = 0
 
         saveButton.addTarget(
             self,
@@ -79,40 +107,49 @@ final class AddTaskView: UIView {
             for: .touchUpInside
         )
 
+        // MARK: Add subviews
+
         addSubview(addButton)
         addSubview(titleTextField)
         addSubview(saveButton)
-
-        titleTextField.alpha = 0
-        saveButton.alpha = 0
     }
-    
+
     private func setupConstraints() {
 
         addButton.snp.makeConstraints { make in
+
             make.center.equalToSuperview()
+
             make.size.equalTo(Constants.collapsedSize)
         }
 
         titleTextField.snp.makeConstraints { make in
+
             make.top.equalToSuperview().inset(24)
+
             make.leading.equalToSuperview().inset(20)
+
             make.height.equalTo(44)
 
-            titleTextFieldTrailingConstraint = make.trailing
-                .equalToSuperview()
-                .offset(-20)
-                .constraint
+            titleTextFieldTrailingConstraint =
+                make.trailing
+                    .equalToSuperview()
+                    .offset(-20)
+                    .constraint
         }
 
         saveButton.snp.makeConstraints { make in
-            make.bottom.trailing.equalToSuperview().inset(20)
+
+            make.bottom.trailing
+                .equalToSuperview()
+                .inset(20)
         }
     }
 
     // MARK: - Actions
 
     @objc private func addButtonTapped() {
+
         if isExpanded {
             collapse()
         } else {
@@ -121,26 +158,49 @@ final class AddTaskView: UIView {
     }
 
     @objc private func saveButtonTapped() {
+
+        let title = titleTextField.text ?? ""
+
+        delegate?.addTaskView(
+            self,
+            didTapSaveWith: title
+        )
+
         collapse()
-        print("Save goal")
     }
 
     // MARK: - Public
 
     func expand() {
-        guard !isExpanded else { return }
+
+        guard !isExpanded else {
+            return
+        }
 
         isExpanded = true
 
-        addButton.setTitle("×", for: .normal)
+        addButton.setImage(
+            UIImage(systemName: "xmark"),
+            for: .normal
+        )
 
         addButton.snp.remakeConstraints { make in
-            make.top.trailing.equalToSuperview().inset(8)
+
+            make.top.trailing
+                .equalToSuperview()
+                .inset(8)
+
             make.size.equalTo(40)
         }
-        titleTextFieldTrailingConstraint?.update(offset: -68)
 
-        onStateChanged?(true)
+        titleTextFieldTrailingConstraint?.update(
+            offset: -68
+        )
+
+        delegate?.addTaskViewDidChangeState(
+            self,
+            isExpanded: true
+        )
 
         UIView.animate(
             withDuration: 0.35,
@@ -148,8 +208,12 @@ final class AddTaskView: UIView {
             usingSpringWithDamping: 0.85,
             initialSpringVelocity: 0.5
         ) {
-            self.layer.cornerRadius = 20
+
+            self.layer.cornerRadius =
+                Constants.expandedCornerRadius
+
             self.titleTextField.alpha = 1
+
             self.saveButton.alpha = 1
 
             self.superview?.layoutIfNeeded()
@@ -157,23 +221,43 @@ final class AddTaskView: UIView {
     }
 
     func collapse() {
-        guard isExpanded else { return }
+
+        guard isExpanded else {
+            return
+        }
 
         isExpanded = false
 
-        addButton.setTitle("+", for: .normal)
+        addButton.setImage(
+            UIImage(systemName: "plus"),
+            for: .normal
+        )
 
         addButton.snp.remakeConstraints { make in
-            make.center.equalToSuperview()
-            make.size.equalTo(Constants.collapsedSize)
-        }
-        titleTextFieldTrailingConstraint?.update(offset: -20)
 
-        onStateChanged?(false)
+            make.center.equalToSuperview()
+
+            make.size.equalTo(
+                Constants.collapsedSize
+            )
+        }
+
+        titleTextFieldTrailingConstraint?.update(
+            offset: -20
+        )
+
+        delegate?.addTaskViewDidChangeState(
+            self,
+            isExpanded: false
+        )
 
         UIView.animate(withDuration: 0.3) {
-            self.layer.cornerRadius = Constants.cornerRadius
+
+            self.layer.cornerRadius =
+                Constants.cornerRadius
+
             self.titleTextField.alpha = 0
+
             self.saveButton.alpha = 0
 
             self.superview?.layoutIfNeeded()

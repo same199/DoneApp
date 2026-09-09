@@ -2,13 +2,27 @@
 
 
 import UIKit
-
-
-import UIKit
 import SnapKit
+
+
+protocol AuthBottomSheetViewDelegate: AnyObject {
+    func authBottomSheetDidTapLogin()
+    func authBottomSheetDidTapRegistration()
+    func authBottomSheetDidTapClose()
+    func authBottomSheetDidTapLoginSubmit(
+        login: String,
+        password: String
+    )
+    func authBottomSheetDidTapRegistrationSubmit(
+        firstName: String,
+        lastName: String,
+        email: String
+    )
+}
 
 final class AuthBottomSheetView: UIView {
     
+    weak var delegate: AuthBottomSheetViewDelegate?
     private let closeButton = CloseButton()
     private let registrationButton: AppButtons = {
         let button = AppButtons()
@@ -188,20 +202,19 @@ final class AuthBottomSheetView: UIView {
     
     
     @objc private func loginButtonTapped() {
-        showLoginForm()
+        delegate?.authBottomSheetDidTapLogin()
     }
     
     @objc private func registrationButtonTapped() {
-        showRegistrationForm()
+        delegate?.authBottomSheetDidTapRegistration()
     }
     
     @objc private func closeButtonTapped() {
-        endEditing(true)
-        showStartScreen()
+        delegate?.authBottomSheetDidTapClose()
     }
     
     
-    private func showLoginForm() {
+    func showLogin() {
         self.snp.updateConstraints { make in
             make.height.equalTo(300)
         }
@@ -222,7 +235,7 @@ final class AuthBottomSheetView: UIView {
     }
     
     
-    private func showRegistrationForm() {
+    func showRegistration() {
         self.snp.updateConstraints { make in
             make.height.equalTo(400)
         }
@@ -242,7 +255,7 @@ final class AuthBottomSheetView: UIView {
         }
     }
     
-    private func showStartScreen() {
+    func showStart() {
         self.snp.updateConstraints { make in
             make.height.equalTo(150)
         }
@@ -268,19 +281,23 @@ final class AuthBottomSheetView: UIView {
     @objc private func loginSubmitButtonTapped() {
         let login = loginTextField.text ?? ""
         let password = passwordTextField.text ?? ""
-        print("LOGIN")
-        print(login)
-        print(password)
+
+        delegate?.authBottomSheetDidTapLoginSubmit(
+            login: login,
+            password: password
+        )
     }
     
     @objc private func registrationSubmitButtonTapped() {
         let firstName = firstNameTextField.text ?? ""
         let lastName = lastNameTextField.text ?? ""
         let email = emailTextField.text ?? ""
-        print("REGISTRATION")
-        print(firstName)
-        print(lastName)
-        print(email)
+
+        delegate?.authBottomSheetDidTapRegistrationSubmit(
+            firstName: firstName,
+            lastName: lastName,
+            email: email
+        )
     }
   
 }
