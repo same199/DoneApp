@@ -20,6 +20,7 @@ class MainScreenViewController: UIViewController {
     private let navigationBar = AppNavigationBar()
     private let screenNameLabel = ScreenTitleLabel()
     private let navigationButtonBlock = UIView()
+    private let logoutButton = LogoutButton()
     
     override func viewDidLoad() {
         configureUI()
@@ -63,6 +64,7 @@ class MainScreenViewController: UIViewController {
         navigationButtonBlock.addSubview(goToAddTaskButton)
         navigationButtonBlock.addSubview(goToStatisticsButton)
         navigationButtonBlock.addSubview(goToSettingsButton)
+        navigationButtonBlock.addSubview(logoutButton)
         
         goToStatisticsButton.snp.makeConstraints { make in
             make.center.equalToSuperview()
@@ -93,6 +95,21 @@ class MainScreenViewController: UIViewController {
         goToSettingsButton.setTitle(NavigationButtonsStrings.settingsButtonTitle.rawValue, for: .normal)
         goToSettingsButton.setTitleColor(.black, for: .normal)
         goToSettingsButton.addTarget(self, action: #selector(settingsButtonTapped( _:)), for: .touchUpInside)
+        
+        logoutButton.snp.makeConstraints { make in
+            make.left.equalTo(goToStatisticsButton)
+            make.right.equalTo(goToStatisticsButton)
+            make.bottom.equalToSuperview().offset(-24)
+            make.height.equalTo(goToStatisticsButton)
+        }
+        logoutButton.setTitle("Выйти", for: .normal)
+        logoutButton.setTitleColor(.black, for: .normal)
+
+        logoutButton.addTarget(
+            self,
+            action: #selector(logoutButtonTapped(_:)),
+            for: .touchUpInside
+        )
     }
     
     private func goBack() {
@@ -116,6 +133,15 @@ class MainScreenViewController: UIViewController {
         let controller = StatisticsViewController()
         navigationController?.pushViewController(controller, animated: true)
     }
+    
+    func logout() {
+        AuthAndRegistrationManager.shared.logout()
+
+        navigationController?.setViewControllers(
+            [RegistrationAndLoginViewController()],
+            animated: true
+        )
+    }
     @objc private func statisticButtonTapped(_ Sender: UIButton ) {
         goToStatistic()
     }
@@ -126,6 +152,9 @@ class MainScreenViewController: UIViewController {
     }
     @objc private func addButtonTapped(_ Sender: UIButton ) {
         goToAddTask()
+    }
+    @objc private func logoutButtonTapped(_ sender: UIButton) {
+        logout()
     }
     
     

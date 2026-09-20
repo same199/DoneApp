@@ -122,9 +122,15 @@ class RegistrationAndLoginViewController: UIViewController, AuthBottomSheetViewD
         login: String,
         password: String
     ) {
-        print("LOGIN")
-        print(login)
-        print(password)
+        let savedEmail = AuthAndRegistrationManager.shared.getEmail()
+        let savedPassword = AuthAndRegistrationManager.shared.getPassword()
+
+        guard login == savedEmail,
+              password == savedPassword else {
+            print("Неверный логин или пароль")
+            return
+        }
+        AuthAndRegistrationManager.shared.setAuthUser(true)
         goToMainScreen()
         closeAuthBottomSheet()
     }
@@ -132,13 +138,22 @@ class RegistrationAndLoginViewController: UIViewController, AuthBottomSheetViewD
     func authBottomSheetDidTapRegistrationSubmit(
         firstName: String,
         lastName: String,
-        email: String
+        email: String,
+        password: String,
+        repeatPassword: String
     ) {
-        print("REGISTRATION")
-        print(firstName)
-        print(lastName)
-        print(email)
-        
+        guard password == repeatPassword else {
+            print("Пароли не совпадают")
+            return
+        }
+
+        AuthAndRegistrationManager.shared.userRegistration(
+            firstName: firstName,
+            lastName: lastName,
+            email: email,
+            password: password
+        )
+        AuthAndRegistrationManager.shared.setAuthUser(true)
         goToMainScreen()
         closeAuthBottomSheet()
     }

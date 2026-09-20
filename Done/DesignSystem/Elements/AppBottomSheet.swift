@@ -16,7 +16,9 @@ protocol AuthBottomSheetViewDelegate: AnyObject {
     func authBottomSheetDidTapRegistrationSubmit(
         firstName: String,
         lastName: String,
-        email: String
+        email: String,
+        password: String,
+        repeatPassword: String
     )
 }
 
@@ -71,6 +73,17 @@ final class AuthBottomSheetView: UIView {
         textField.placeholder = "Почта"
         return textField
     }()
+    private let registrationPasswordTextField: PasswordTextField = {
+        let textField = PasswordTextField()
+        textField.placeholder = "Пароль"
+        return textField
+    }()
+
+    private let repeatPasswordTextField: PasswordTextField = {
+        let textField = PasswordTextField()
+        textField.placeholder = "Повторите пароль"
+        return textField
+    }()
     
     
     private lazy var startStackView: UIStackView = {
@@ -104,6 +117,8 @@ final class AuthBottomSheetView: UIView {
                 firstNameTextField,
                 lastNameTextField,
                 emailTextField,
+                registrationPasswordTextField,
+                repeatPasswordTextField,
                 registrationSubmitButton
             ]
         )
@@ -155,7 +170,7 @@ final class AuthBottomSheetView: UIView {
             make.top.equalToSuperview().offset(60)
             make.leading.trailing.equalToSuperview()
                 .inset(24)
-            make.height.equalTo(248)
+            make.height.equalTo(360)
         }
 
         closeButton.snp.makeConstraints { make in
@@ -237,7 +252,7 @@ final class AuthBottomSheetView: UIView {
     
     func showRegistration() {
         self.snp.updateConstraints { make in
-            make.height.equalTo(400)
+            make.height.equalTo(520)
         }
         registrationStackView.isHidden = false
         closeButton.isHidden = false
@@ -292,11 +307,15 @@ final class AuthBottomSheetView: UIView {
         let firstName = firstNameTextField.text ?? ""
         let lastName = lastNameTextField.text ?? ""
         let email = emailTextField.text ?? ""
+        let password = registrationPasswordTextField.text ?? ""
+        let repeatPassword = repeatPasswordTextField.text ?? ""
 
         delegate?.authBottomSheetDidTapRegistrationSubmit(
             firstName: firstName,
             lastName: lastName,
-            email: email
+            email: email,
+            password: password,
+            repeatPassword: repeatPassword
         )
     }
   

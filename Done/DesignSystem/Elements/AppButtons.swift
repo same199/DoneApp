@@ -91,3 +91,33 @@ final class CloseButton: UIButton {
         backgroundColor = .clear
     }
 }
+
+final class LogoutButton: UIButton {
+
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        setupUI()
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    private func setupUI() {
+        backgroundColor = .white
+        setTitleColor(.black, for: .normal)
+        titleLabel?.font = AppTypography.button
+        layer.cornerRadius = 12
+
+        setImage(
+            UIImage(
+                systemName: "rectangle.portrait.and.arrow.right"
+            ),
+            for: .normal
+        )
+
+        tintColor = .black
+    }
+}
+
+
