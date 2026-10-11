@@ -10,5 +10,4 @@ import UIKit
 public enum Offsets: CGFloat {
     case leftAndRightOffset = 16
     case topAndBottomOffset = 24
-    
 }

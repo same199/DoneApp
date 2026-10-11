@@ -9,10 +9,25 @@
 
 public enum LoginAndRegistrationViewStrings: String {
     case loginButtonTittle = "Sign in"
-    case registrationButtoTittle = "Register"
+    case registrationButtoTittle = "Registration"
 }
 
 public enum GoBackStrings: String {
     case goBackButtonTittle = "Back"
 
+}
+
+public enum NavigationButtonsStrings: String {
+    case addTaskButtonTitle = "Tasks"
+    case settingsButtonTitle = "Settings"
+    case statisticsButtonTitle = "Statistics"
+}
+
+public enum ScreenNamesTitleStrings: String {
+    case loginScreenTitle = "Login"
+    case registrationScreenTitle = "Registration"
+    case settingsScreenTitle = "Settings"
+    case statisticsScreenTitle = "Statistics"
+    case taskListScreenTitle = "Tasks"
+    case mainScreenTitle = "DoneApp"
 }
