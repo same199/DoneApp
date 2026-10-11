@@ -11,7 +11,6 @@ import SnapKit
 
 final class AddTaskView: UIView {
 
-    // MARK: - Constants
 
     private enum Constants {
         static let collapsedSize: CGFloat = 56
@@ -20,11 +19,10 @@ final class AddTaskView: UIView {
         static let expandedCornerRadius: CGFloat = 20
     }
 
-    // MARK: - UI
-
     private let addButton = AddTaskButton()
 
     private let titleTextField = UITextField()
+    private let descriptionTextField = UITextField()
 
     private let saveButton = UIButton()
 
@@ -33,6 +31,7 @@ final class AddTaskView: UIView {
     // MARK: - State
 
     private var isExpanded = false
+    private var isDescriptionVisible = false
 
     // MARK: - Delegate
 
@@ -82,10 +81,17 @@ final class AddTaskView: UIView {
         // MARK: Title text field
 
         titleTextField.placeholder = "Название цели"
-
         titleTextField.borderStyle = .roundedRect
-
         titleTextField.alpha = 0
+        titleTextField.addTarget(
+            self,
+            action: #selector(titleTextFieldDidChange),
+            for: .editingChanged
+        )
+        
+        descriptionTextField.placeholder = "Описание"
+        descriptionTextField.borderStyle = .roundedRect
+        descriptionTextField.alpha = 0
 
         // MARK: Save button
 
@@ -111,6 +117,7 @@ final class AddTaskView: UIView {
 
         addSubview(addButton)
         addSubview(titleTextField)
+        addSubview(descriptionTextField)
         addSubview(saveButton)
     }
 
@@ -137,6 +144,13 @@ final class AddTaskView: UIView {
                     .offset(-20)
                     .constraint
         }
+        
+        descriptionTextField.snp.makeConstraints { make in
+            make.top.equalTo(titleTextField.snp.bottom).offset(12)
+            make.leading.equalToSuperview().inset(20)
+            make.trailing.equalToSuperview().inset(20)
+            make.height.equalTo(44)
+        }
 
         saveButton.snp.makeConstraints { make in
 
@@ -147,6 +161,26 @@ final class AddTaskView: UIView {
     }
 
     // MARK: - Actions
+    @objc private func titleTextFieldDidChange() {
+        let hasText = !(titleTextField.text ?? "")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .isEmpty
+
+        guard hasText != isDescriptionVisible else {
+            return
+        }
+
+        isDescriptionVisible = hasText
+
+        delegate?.addTaskViewDidChangeDescriptionState(
+            self,
+            isVisible: hasText
+        )
+
+        UIView.animate(withDuration: 0.25) {
+            self.descriptionTextField.alpha = hasText ? 1 : 0
+        }
+    }
 
     @objc private func addButtonTapped() {
 
@@ -159,10 +193,14 @@ final class AddTaskView: UIView {
 
     @objc private func saveButtonTapped() {
         let title = titleTextField.text ?? ""
+        let description = descriptionTextField.text ?? ""
+
         delegate?.addTaskView(
             self,
-            didTapSaveWith: title
+            didTapSaveWith: title,
+            description: description
         )
+
         collapse()
     }
 

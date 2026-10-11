@@ -15,6 +15,11 @@ class ActivityFormViewController: UIViewController {
     private let screenNameLabel = ScreenTitleLabel()
     private let goBackButton = BackButtons()
     private let addTaskView = AddTaskView()
+    private let tableView = UITableView()
+    private var activities: [Activity] = []
+    
+    private let bottomSheetOverlay = UIView()
+    private var activityBottomSheet: ActivityBottomSheetView?
     
     private var addTaskWidthConstraint: Constraint?
     private var addTaskHeightConstraint: Constraint?
@@ -28,6 +33,8 @@ class ActivityFormViewController: UIViewController {
         setupAddTaskView()
         setupTapGesture()
         setupKeyboardObservers()
+        setupTableView()
+        loadActivities()
         }
     
     func configureUI() {
@@ -88,10 +95,20 @@ class ActivityFormViewController: UIViewController {
     
     private func updateAddTaskViewSize(
         isExpanded: Bool,
+        isDescriptionVisible: Bool = false,
         animated: Bool
     ) {
         let width: CGFloat = isExpanded ? 350 : 56
-        let height: CGFloat = isExpanded ? 300 : 56
+
+        let height: CGFloat
+
+        if !isExpanded {
+            height = 56
+        } else if isDescriptionVisible {
+            height = 300
+        } else {
+            height = 200
+        }
 
         addTaskWidthConstraint?.update(offset: width)
         addTaskHeightConstraint?.update(offset: height)
@@ -118,6 +135,7 @@ class ActivityFormViewController: UIViewController {
             target: self,
             action: #selector(handleScreenTap(_:))
         )
+        tapGesture.cancelsTouchesInView = false
 
         view.addGestureRecognizer(tapGesture)
     }
@@ -147,6 +165,87 @@ class ActivityFormViewController: UIViewController {
             name: UIResponder.keyboardWillHideNotification,
             object: nil
         )
+    }
+    
+    private func setupTableView() {
+        containerView.addSubview(tableView)
+
+        tableView.backgroundColor = .clear
+        tableView.separatorStyle = .none
+        tableView.showsVerticalScrollIndicator = true
+
+        tableView.snp.makeConstraints { make in
+            make.top.equalTo(navigationBar.snp.bottom).offset(16)
+            make.leading.trailing.equalToSuperview().inset(20)
+            make.bottom.equalTo(addTaskView.snp.top).offset(-16)
+        }
+        tableView.dataSource = self
+        tableView.delegate = self
+        tableView.register(
+            ActivityCell.self,
+            forCellReuseIdentifier: ActivityCell.reuseIdentifier
+        )
+        
+    }
+    
+    private func loadActivities() {
+        activities = ActivityStorage.shared.load()
+        tableView.reloadData()
+    }
+    
+    private func showActivityBottomSheet(for activity: Activity) {
+        bottomSheetOverlay.backgroundColor = UIColor.black.withAlphaComponent(0.4)
+        bottomSheetOverlay.alpha = 0
+
+        view.addSubview(bottomSheetOverlay)
+        let tapGesture = UITapGestureRecognizer(
+            target: self,
+            action: #selector(bottomSheetOverlayTapped)
+        )
+        bottomSheetOverlay.addGestureRecognizer(tapGesture)
+
+        bottomSheetOverlay.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
+
+        let sheet = ActivityBottomSheetView(activity: activity)
+        sheet.delegate = self
+        activityBottomSheet = sheet
+
+        view.addSubview(sheet)
+
+        sheet.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview()
+            make.height.equalTo(view.bounds.height * 0.5)
+            make.top.equalTo(view.snp.bottom)
+        }
+
+        view.layoutIfNeeded()
+
+        sheet.snp.updateConstraints { make in
+            make.top.equalTo(view.snp.bottom).offset(-view.bounds.height * 0.5)
+        }
+
+        UIView.animate(withDuration: 0.3) {
+            self.bottomSheetOverlay.alpha = 1
+            self.view.layoutIfNeeded()
+        }
+    }
+    
+    private func hideActivityBottomSheet() {
+        UIView.animate(withDuration: 0.3, animations: {
+            self.bottomSheetOverlay.alpha = 0
+
+            self.activityBottomSheet?.snp.updateConstraints { make in
+                make.top.equalTo(self.view.snp.bottom)
+            }
+
+            self.view.layoutIfNeeded()
+        }, completion: { _ in
+            self.activityBottomSheet?.removeFromSuperview()
+            self.activityBottomSheet = nil
+            self.bottomSheetOverlay.removeFromSuperview()
+        })
     }
     
     @objc private func keyboardWillShow(_ notification: Notification) {
@@ -202,6 +301,10 @@ class ActivityFormViewController: UIViewController {
     deinit {
         NotificationCenter.default.removeObserver(self)
     }
+    
+    @objc private func bottomSheetOverlayTapped() {
+        hideActivityBottomSheet()
+    }
 }
 
 extension ActivityFormViewController: AddTaskViewDelegate {
@@ -216,12 +319,78 @@ extension ActivityFormViewController: AddTaskViewDelegate {
             animated: true
         )
     }
+    
+    func addTaskViewDidChangeDescriptionState(
+        _ view: AddTaskView,
+        isVisible: Bool
+    ) {
+        updateAddTaskViewSize(
+            isExpanded: true,
+            isDescriptionVisible: isVisible,
+            animated: true
+        )
+    }
 
     func addTaskView(
         _ view: AddTaskView,
-        didTapSaveWith title: String
+        didTapSaveWith title: String,
+        description: String
     ) {
+        let activity = Activity(
+            id: UUID(),
+            title: title,
+            description: description,
+            createdAt: Date().timeIntervalSince1970
+        )
 
-        print("Save task:", title)
+        ActivityStorage.shared.save(activity)
+        print("Активность сохранена:", activity.title)
+        loadActivities()
+    }
+}
+
+extension ActivityFormViewController: UITableViewDataSource {
+
+    func tableView(
+        _ tableView: UITableView,
+        numberOfRowsInSection section: Int
+    ) -> Int {
+        activities.count
+    }
+
+    func tableView(
+        _ tableView: UITableView,
+        cellForRowAt indexPath: IndexPath
+    ) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(
+            withIdentifier: ActivityCell.reuseIdentifier,
+            for: indexPath
+        ) as! ActivityCell
+
+        let activity = activities[indexPath.row]
+        cell.configure(with: activity)
+
+        return cell
+    }
+}
+
+extension ActivityFormViewController: UITableViewDelegate {
+
+    func tableView(
+        _ tableView: UITableView,
+        didSelectRowAt indexPath: IndexPath
+    ) {
+        tableView.deselectRow(at: indexPath, animated: true)
+
+        let activity = activities[indexPath.row]
+        showActivityBottomSheet(for: activity)
+    }
+}
+
+
+extension ActivityFormViewController: ActivityBottomSheetViewDelegate {
+
+    func activityBottomSheetDidTapClose() {
+        hideActivityBottomSheet()
     }
 }

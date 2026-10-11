@@ -293,7 +293,9 @@ final class AuthBottomSheetView: UIView {
     }
     
     
+    
     @objc private func loginSubmitButtonTapped() {
+
         let login = loginTextField.text ?? ""
         let password = passwordTextField.text ?? ""
 
@@ -319,4 +321,126 @@ final class AuthBottomSheetView: UIView {
         )
     }
   
+}
+
+
+protocol ActivityBottomSheetViewDelegate: AnyObject {
+    func activityBottomSheetDidTapClose()
+}
+
+final class ActivityBottomSheetView: UIView {
+    
+    weak var delegate: ActivityBottomSheetViewDelegate?
+
+    private let activity: Activity
+
+    private let closeButton = CloseButton()
+    private let titleLabel = UILabel()
+    private let descriptionLabel = UILabel()
+    private let createdAtLabel = UILabel()
+
+    init(activity: Activity) {
+        self.activity = activity
+        super.init(frame: .zero)
+
+        configureUI()
+        configureConstraints()
+        configureActions()
+        configure(with: activity)
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    private func configureUI() {
+        backgroundColor = .white
+
+        layer.cornerRadius = 24
+        layer.maskedCorners = [
+            .layerMinXMinYCorner,
+            .layerMaxXMinYCorner
+        ]
+        clipsToBounds = true
+
+        titleLabel.font = .systemFont(
+            ofSize: 24,
+            weight: .bold
+        )
+        titleLabel.textColor = .label
+        titleLabel.numberOfLines = 0
+
+        descriptionLabel.font = .systemFont(
+            ofSize: 16,
+            weight: .regular
+        )
+        descriptionLabel.textColor = .secondaryLabel
+        descriptionLabel.numberOfLines = 0
+
+        createdAtLabel.font = .systemFont(
+            ofSize: 14,
+            weight: .regular
+        )
+        createdAtLabel.textColor = .secondaryLabel
+        createdAtLabel.numberOfLines = 0
+
+        addSubview(closeButton)
+        addSubview(titleLabel)
+        addSubview(descriptionLabel)
+        addSubview(createdAtLabel)
+    }
+
+    private func configureConstraints() {
+        closeButton.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(16)
+            make.trailing.equalToSuperview().inset(16)
+            make.width.height.equalTo(30)
+        }
+
+        titleLabel.snp.makeConstraints { make in
+            make.top.equalTo(closeButton.snp.bottom).offset(20)
+            make.leading.trailing.equalToSuperview().inset(24)
+        }
+
+        descriptionLabel.snp.makeConstraints { make in
+            make.top.equalTo(titleLabel.snp.bottom).offset(16)
+            make.leading.trailing.equalTo(titleLabel)
+        }
+
+        createdAtLabel.snp.makeConstraints { make in
+            make.top.equalTo(descriptionLabel.snp.bottom).offset(24)
+            make.leading.trailing.equalTo(titleLabel)
+        }
+    }
+
+    private func configureActions() {
+        closeButton.addTarget(
+            self,
+            action: #selector(closeButtonTapped),
+            for: .touchUpInside
+        )
+    }
+
+    private func configure(with activity: Activity) {
+        titleLabel.text = activity.title
+
+        descriptionLabel.text = activity.description.isEmpty
+            ? "Описание отсутствует"
+            : activity.description
+
+        let date = Date(
+            timeIntervalSince1970: activity.createdAt
+        )
+
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .short
+
+        createdAtLabel.text =
+            "Создано: \(formatter.string(from: date))"
+    }
+
+    @objc private func closeButtonTapped() {
+        delegate?.activityBottomSheetDidTapClose()
+    }
 }

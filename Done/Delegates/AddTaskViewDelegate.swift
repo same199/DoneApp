@@ -16,6 +16,12 @@ protocol AddTaskViewDelegate: AnyObject {
 
     func addTaskView(
         _ view: AddTaskView,
-        didTapSaveWith title: String
+        didTapSaveWith title: String,
+        description: String
+    )
+    
+    func addTaskViewDidChangeDescriptionState(
+        _ view: AddTaskView,
+        isVisible: Bool
     )
 }

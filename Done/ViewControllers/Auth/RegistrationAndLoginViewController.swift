@@ -118,6 +118,7 @@ class RegistrationAndLoginViewController: UIViewController, AuthBottomSheetViewD
         authAndRegisterBottomSheet.showStart()
     }
 
+    
     func authBottomSheetDidTapLoginSubmit(
         login: String,
         password: String
@@ -130,10 +131,12 @@ class RegistrationAndLoginViewController: UIViewController, AuthBottomSheetViewD
             print("Неверный логин или пароль")
             return
         }
+
         AuthAndRegistrationManager.shared.setAuthUser(true)
         goToMainScreen()
         closeAuthBottomSheet()
     }
+
 
     func authBottomSheetDidTapRegistrationSubmit(
         firstName: String,
