@@ -8,6 +8,9 @@
 
 
 
+
+
+
 import UIKit
 import SnapKit
 
@@ -17,24 +20,18 @@ final class ActivityCell: UITableViewCell {
 
     private let cardView = UIView()
     private let titleLabel = UILabel()
-    private let checkboxPlaceholder = UIView()
+    private let checkboxButton = UIButton(type: .system)
 
-    override init(
-        style: UITableViewCell.CellStyle,
-        reuseIdentifier: String?
-    ) {
-        super.init(
-            style: style,
-            reuseIdentifier: reuseIdentifier
-        )
+    var onCheckboxTapped: (() -> Void)?
 
+    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+        super.init(style: style, reuseIdentifier: reuseIdentifier)
         setupUI()
         setupConstraints()
     }
 
     required init?(coder: NSCoder) {
         super.init(coder: coder)
-
         setupUI()
         setupConstraints()
     }
@@ -48,22 +45,32 @@ final class ActivityCell: UITableViewCell {
         cardView.layer.cornerRadius = 16
         cardView.clipsToBounds = true
 
-        titleLabel.font = .systemFont(
-            ofSize: 16,
-            weight: .medium
-        )
+        titleLabel.font = .systemFont(ofSize: 16, weight: .medium)
         titleLabel.textColor = .black
         titleLabel.numberOfLines = 2
 
-        // Пока это только место под будущий чекбокс.
-        checkboxPlaceholder.layer.borderWidth = 1.5
-        checkboxPlaceholder.layer.borderColor =
-            UIColor.lightGray.cgColor
-        checkboxPlaceholder.layer.cornerRadius = 11
+        checkboxButton.layer.borderWidth = 1.5
+        checkboxButton.layer.borderColor = UIColor.lightGray.cgColor
+        checkboxButton.layer.cornerRadius = 11
+        checkboxButton.tintColor = .white
+
+        let checkmark = UIImage(systemName: "checkmark.circle")?
+            .withConfiguration(
+                UIImage.SymbolConfiguration(pointSize: 12, weight: .bold)
+            )
+
+        checkboxButton.setImage(checkmark, for: .normal)
+        checkboxButton.imageView?.contentMode = .scaleAspectFit
+
+        checkboxButton.addTarget(
+            self,
+            action: #selector(checkboxTapped),
+            for: .touchUpInside
+        )
 
         contentView.addSubview(cardView)
         cardView.addSubview(titleLabel)
-        cardView.addSubview(checkboxPlaceholder)
+        cardView.addSubview(checkboxButton)
     }
 
     private func setupConstraints() {
@@ -77,12 +84,10 @@ final class ActivityCell: UITableViewCell {
         titleLabel.snp.makeConstraints { make in
             make.leading.equalToSuperview().inset(16)
             make.top.bottom.equalToSuperview().inset(12)
-            make.trailing.lessThanOrEqualTo(
-                checkboxPlaceholder.snp.leading
-            ).offset(-12)
+            make.trailing.lessThanOrEqualTo(checkboxButton.snp.leading).offset(-12)
         }
 
-        checkboxPlaceholder.snp.makeConstraints { make in
+        checkboxButton.snp.makeConstraints { make in
             make.trailing.equalToSuperview().inset(16)
             make.centerY.equalToSuperview()
             make.size.equalTo(22)
@@ -90,6 +95,42 @@ final class ActivityCell: UITableViewCell {
     }
 
     func configure(with activity: Activity) {
-        titleLabel.text = activity.title
+        if activity.isCompleted {
+            checkboxButton.setImage(
+                UIImage(systemName: "checkmark.circle"),
+                for: .normal
+            )
+            checkboxButton.backgroundColor = .systemBlue
+            checkboxButton.layer.borderColor = UIColor.systemBlue.cgColor
+            checkboxButton.tintColor = .white
+
+            titleLabel.attributedText = NSAttributedString(
+                string: activity.title,
+                attributes: [
+                    .strikethroughStyle: NSUnderlineStyle.single.rawValue,
+                    .foregroundColor: UIColor.systemGray3
+                ]
+            )
+        } else {
+            checkboxButton.setImage(nil, for: .normal)
+            checkboxButton.backgroundColor = .clear
+            checkboxButton.layer.borderColor = UIColor.lightGray.cgColor
+            checkboxButton.tintColor = .white
+
+            titleLabel.attributedText = nil
+            titleLabel.text = activity.title
+            titleLabel.textColor = .black
+        }
+    }
+
+    @objc private func checkboxTapped() {
+        onCheckboxTapped?()
+    }
+
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        onCheckboxTapped = nil
     }
 }
+
+

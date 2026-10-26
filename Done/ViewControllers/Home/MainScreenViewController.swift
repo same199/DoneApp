@@ -28,7 +28,12 @@ class MainScreenViewController: UIViewController {
         }
     
     func configureUI() {
-        view.backgroundColor = .green
+        view.backgroundColor = UIColor(
+            red: 244.0 / 255.0,
+            green: 245.0 / 255.0,
+            blue: 247.0 / 255.0,
+            alpha: 1
+        )
         view.addSubview(navigationBar)
         navigationBar.snp.makeConstraints { make in
             make.width.equalToSuperview()
@@ -66,11 +71,12 @@ class MainScreenViewController: UIViewController {
         navigationButtonBlock.addSubview(goToSettingsButton)
         navigationButtonBlock.addSubview(logoutButton)
         
+        
         goToStatisticsButton.snp.makeConstraints { make in
             make.center.equalToSuperview()
             make.left.equalToSuperview().offset(Offsets.leftAndRightOffset.rawValue)
             make.right.equalToSuperview().inset(Offsets.leftAndRightOffset.rawValue)
-            make.height.equalTo(50)
+            make.height.equalTo(64)
         }
         goToStatisticsButton.setTitle(NavigationButtonsStrings.statisticsButtonTitle.rawValue, for: .normal)
         goToStatisticsButton.setTitleColor(.black, for: .normal)
@@ -102,8 +108,6 @@ class MainScreenViewController: UIViewController {
             make.bottom.equalToSuperview().offset(-24)
             make.height.equalTo(goToStatisticsButton)
         }
-        logoutButton.setTitle("Выйти", for: .normal)
-        logoutButton.setTitleColor(.black, for: .normal)
 
         logoutButton.addTarget(
             self,

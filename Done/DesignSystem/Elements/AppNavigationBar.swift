@@ -21,7 +21,6 @@ final class AppNavigationBar: UIView {
     }
 
     private func setupUI() {
-        backgroundColor = .white
-        layer.cornerRadius = 16
+        backgroundColor = .clear
     }
 }

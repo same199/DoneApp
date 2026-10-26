@@ -58,11 +58,14 @@ final class AddTaskView: UIView {
     private func setupUI() {
 
         backgroundColor = .white
-
         layer.cornerRadius = Constants.cornerRadius
-
         clipsToBounds = true
 
+//        layer.shadowColor = UIColor.black.cgColor
+//        layer.shadowOpacity = 0.08
+//        layer.shadowRadius = 12
+//        layer.shadowOffset = CGSize(width: 0, height: 4)
+//        layer.masksToBounds = false
         // MARK: Add button
 
         addButton.setImage(
@@ -70,8 +73,15 @@ final class AddTaskView: UIView {
             for: .normal
         )
 
-        addButton.tintColor = .black
+        addButton.tintColor = .white
+        addButton.backgroundColor = UIColor(
+            red: 57.0 / 255.0,
+            green: 117.0 / 255.0,
+            blue: 215.0 / 255.0,
+            alpha: 1
+        )
 
+        addButton.layer.cornerRadius = 28
         addButton.addTarget(
             self,
             action: #selector(addButtonTapped),
@@ -92,6 +102,23 @@ final class AddTaskView: UIView {
         descriptionTextField.placeholder = "Описание"
         descriptionTextField.borderStyle = .roundedRect
         descriptionTextField.alpha = 0
+        titleTextField.backgroundColor = UIColor(
+            red: 244.0 / 255.0,
+            green: 245.0 / 255.0,
+            blue: 247.0 / 255.0,
+            alpha: 1
+        )
+
+        descriptionTextField.backgroundColor = titleTextField.backgroundColor
+
+        titleTextField.layer.cornerRadius = 12
+        descriptionTextField.layer.cornerRadius = 12
+
+        titleTextField.layer.borderWidth = 0
+        descriptionTextField.layer.borderWidth = 0
+
+        titleTextField.font = .systemFont(ofSize: 16)
+        descriptionTextField.font = .systemFont(ofSize: 16)
 
         // MARK: Save button
 
@@ -101,8 +128,18 @@ final class AddTaskView: UIView {
         )
 
         saveButton.setTitleColor(
-            .black,
+            UIColor(
+                red: 57.0 / 255.0,
+                green: 117.0 / 255.0,
+                blue: 215.0 / 255.0,
+                alpha: 1
+            ),
             for: .normal
+        )
+
+        saveButton.titleLabel?.font = .systemFont(
+            ofSize: 16,
+            weight: .semibold
         )
 
         saveButton.alpha = 0
@@ -215,6 +252,10 @@ final class AddTaskView: UIView {
             UIImage(systemName: "xmark"),
             for: .normal
         )
+
+        addButton.tintColor = .black
+        addButton.backgroundColor = .clear
+        addButton.layer.borderWidth = 0
         addButton.snp.remakeConstraints { make in
             make.top.trailing.equalToSuperview().inset(8)
             make.size.equalTo(40)
@@ -248,6 +289,14 @@ final class AddTaskView: UIView {
         addButton.setImage(
             UIImage(systemName: "plus"),
             for: .normal
+        )
+
+        addButton.tintColor = .white
+        addButton.backgroundColor = UIColor(
+            red: 57.0 / 255.0,
+            green: 117.0 / 255.0,
+            blue: 215.0 / 255.0,
+            alpha: 1
         )
         addButton.snp.remakeConstraints { make in
             make.center.equalToSuperview()

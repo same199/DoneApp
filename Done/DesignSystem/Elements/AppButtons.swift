@@ -19,11 +19,23 @@ final class AppButtons: UIButton {
     }
 
     private func setupUI() {
-        backgroundColor = .white
-        layer.borderWidth = 1
+        backgroundColor = UIColor(
+            red: 244.0 / 255.0,
+            green: 245.0 / 255.0,
+            blue: 247.0 / 255.0,
+            alpha: 1
+        )
+
+        layer.borderWidth = 0
+        layer.cornerRadius = 16
+        clipsToBounds = true
+
         setTitleColor(.black, for: .normal)
-        titleLabel?.font = AppTypography.button
-        layer.cornerRadius = 12
+
+        titleLabel?.font = .systemFont(
+            ofSize: 18,
+            weight: .semibold
+        )
     }
 }
 
@@ -41,10 +53,9 @@ final class BackButtons: UIButton {
     
     private func setupUI() {
         
-        backgroundColor = .white
+        backgroundColor = .clear
         setTitleColor(.white, for: .normal)
         titleLabel?.font = AppTypography.button
-        layer.cornerRadius = 16
         setImage(UIImage(systemName: "arrow.backward"),
                  for: .normal
         )

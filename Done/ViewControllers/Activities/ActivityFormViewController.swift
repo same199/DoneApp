@@ -38,9 +38,19 @@ class ActivityFormViewController: UIViewController {
         }
     
     func configureUI() {
-        view.backgroundColor = .blue
+        view.backgroundColor = UIColor(
+            red: 244 / 255,
+            green: 245 / 255,
+            blue: 247 / 255,
+            alpha: 1
+        )
         view.addSubview(containerView)
-        containerView.backgroundColor = .blue
+        containerView.backgroundColor = UIColor(
+            red: 244 / 255,
+            green: 245 / 255,
+            blue: 247 / 255,
+            alpha: 1
+        )
         containerView.snp.makeConstraints { make in
             make.top.leading.trailing.equalToSuperview()
             containerBottomConstraint = make.bottom.equalToSuperview().constraint
@@ -191,6 +201,28 @@ class ActivityFormViewController: UIViewController {
     private func loadActivities() {
         activities = ActivityStorage.shared.load()
         tableView.reloadData()
+    }
+    
+    private func completeActivity(at index: Int) {
+        guard activities.indices.contains(index) else {
+            return
+        }
+
+        guard !activities[index].isCompleted else {
+            return
+        }
+
+        activities[index].isCompleted = true
+        activities[index].completedAt = Date().timeIntervalSince1970
+
+        let activity = activities[index]
+
+        ActivityStorage.shared.update(activity)
+
+        tableView.reloadRows(
+            at: [IndexPath(row: index, section: 0)],
+            with: .automatic
+        )
     }
     
     private func showActivityBottomSheet(for activity: Activity) {
@@ -362,13 +394,19 @@ extension ActivityFormViewController: UITableViewDataSource {
         _ tableView: UITableView,
         cellForRowAt indexPath: IndexPath
     ) -> UITableViewCell {
+
         let cell = tableView.dequeueReusableCell(
             withIdentifier: ActivityCell.reuseIdentifier,
             for: indexPath
         ) as! ActivityCell
 
         let activity = activities[indexPath.row]
+
         cell.configure(with: activity)
+
+        cell.onCheckboxTapped = { [weak self] in
+            self?.completeActivity(at: indexPath.row)
+        }
 
         return cell
     }
@@ -383,6 +421,11 @@ extension ActivityFormViewController: UITableViewDelegate {
         tableView.deselectRow(at: indexPath, animated: true)
 
         let activity = activities[indexPath.row]
+
+        guard !activity.isCompleted else {
+            return
+        }
+
         showActivityBottomSheet(for: activity)
     }
 }

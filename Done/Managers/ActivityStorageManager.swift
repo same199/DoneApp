@@ -5,8 +5,8 @@
 //  Created by LizOk&Same on 11.10.26.
 //
 
-import Foundation
 
+import Foundation
 
 final class ActivityStorage {
 
@@ -19,13 +19,20 @@ final class ActivityStorage {
     func save(_ activity: Activity) {
         var activities = load()
         activities.append(activity)
+        saveAll(activities)
+    }
 
-        do {
-            let data = try JSONEncoder().encode(activities)
-            UserDefaults.standard.set(data, forKey: storageKey)
-        } catch {
-            print("Ошибка сохранения активности:", error)
+    func update(_ activity: Activity) {
+        var activities = load()
+
+        guard let index = activities.firstIndex(
+            where: { $0.id == activity.id }
+        ) else {
+            return
         }
+
+        activities[index] = activity
+        saveAll(activities)
     }
 
     func load() -> [Activity] {
@@ -40,5 +47,15 @@ final class ActivityStorage {
             return []
         }
     }
+
+    private func saveAll(_ activities: [Activity]) {
+        do {
+            let data = try JSONEncoder().encode(activities)
+            UserDefaults.standard.set(data, forKey: storageKey)
+        } catch {
+            print("Ошибка сохранения активностей:", error)
+        }
+    }
 }
+
 

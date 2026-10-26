@@ -22,7 +22,12 @@ class SettingsViewController: UIViewController {
         }
     
     func configureUI() {
-        view.backgroundColor = .yellow
+        view.backgroundColor = UIColor(
+            red: 244.0 / 255.0,
+            green: 245.0 / 255.0,
+            blue: 247.0 / 255.0,
+            alpha: 1
+        )
         view.addSubview(navigationBar)
         navigationBar.snp.makeConstraints { make in
             make.width.equalToSuperview()
