@@ -56,6 +56,10 @@ final class ActivityStorage {
             print("Ошибка сохранения активностей:", error)
         }
     }
+    
+    func clear() {
+        UserDefaults.standard.removeObject(forKey: storageKey)
+    }
 }
 
 

@@ -31,3 +31,15 @@ public enum ScreenNamesTitleStrings: String {
     case taskListScreenTitle = "Tasks"
     case mainScreenTitle = "DoneApp"
 }
+
+public enum DeleteAlertStrings: String {
+    case deleteAlertButtonTitle = "Delete all information"
+    case deleteAlertTitle = "Are you sure?"
+    case deleteAlertMessage = "Deleting this task will erase all its progress."
+    case deleteAlertCancelButtonTitle = "Cancel"
+    case deleteAlertDeleteButtonTitle = "Delete"
+}
+
+public enum EmptyTextFieldStrings: String {
+    case emptyTextFieldState = ""
+}

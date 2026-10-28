@@ -11,8 +11,8 @@ import Foundation
 
 struct Activity: Codable {
     let id: UUID
-    let title: String
-    let description: String
+    var title: String
+    var description: String
     let createdAt: TimeInterval
 
     var isCompleted: Bool

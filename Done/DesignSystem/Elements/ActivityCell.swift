@@ -20,9 +20,11 @@ final class ActivityCell: UITableViewCell {
 
     private let cardView = UIView()
     private let titleLabel = UILabel()
+    private let descriptionLabel = UILabel()
     private let checkboxButton = UIButton(type: .system)
 
     var onCheckboxTapped: (() -> Void)?
+    var onLongPress: (() -> Void)?
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -35,6 +37,12 @@ final class ActivityCell: UITableViewCell {
         setupUI()
         setupConstraints()
     }
+    
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        onCheckboxTapped = nil
+        onLongPress = nil
+    }
 
     private func setupUI() {
         backgroundColor = .clear
@@ -45,9 +53,20 @@ final class ActivityCell: UITableViewCell {
         cardView.layer.cornerRadius = 16
         cardView.clipsToBounds = true
 
-        titleLabel.font = .systemFont(ofSize: 16, weight: .medium)
+        titleLabel.font = .systemFont(ofSize: 16, weight: .bold)
         titleLabel.textColor = .black
-        titleLabel.numberOfLines = 2
+        titleLabel.numberOfLines = 1
+        titleLabel.lineBreakMode = .byTruncatingTail
+
+        descriptionLabel.font = .systemFont(ofSize: 13, weight: .regular)
+        descriptionLabel.textColor = UIColor(
+            red: 140.0 / 255.0,
+            green: 145.0 / 255.0,
+            blue: 153.0 / 255.0,
+            alpha: 1
+        )
+        descriptionLabel.numberOfLines = 1
+        descriptionLabel.lineBreakMode = .byTruncatingTail
 
         checkboxButton.layer.borderWidth = 1.5
         checkboxButton.layer.borderColor = UIColor.lightGray.cgColor
@@ -67,9 +86,17 @@ final class ActivityCell: UITableViewCell {
             action: #selector(checkboxTapped),
             for: .touchUpInside
         )
+        let longPress = UILongPressGestureRecognizer(
+            target: self,
+            action: #selector(handleLongPress(_:))
+        )
+
+        longPress.minimumPressDuration = 0.6
+        cardView.addGestureRecognizer(longPress)
 
         contentView.addSubview(cardView)
         cardView.addSubview(titleLabel)
+        cardView.addSubview(descriptionLabel)
         cardView.addSubview(checkboxButton)
     }
 
@@ -82,9 +109,16 @@ final class ActivityCell: UITableViewCell {
         }
 
         titleLabel.snp.makeConstraints { make in
+            make.top.equalToSuperview().inset(12)
             make.leading.equalToSuperview().inset(16)
-            make.top.bottom.equalToSuperview().inset(12)
             make.trailing.lessThanOrEqualTo(checkboxButton.snp.leading).offset(-12)
+        }
+
+        descriptionLabel.snp.makeConstraints { make in
+            make.top.equalTo(titleLabel.snp.bottom).offset(4)
+            make.leading.equalTo(titleLabel)
+            make.trailing.lessThanOrEqualTo(checkboxButton.snp.leading).offset(-12)
+            make.bottom.equalToSuperview().inset(12)
         }
 
         checkboxButton.snp.makeConstraints { make in
@@ -95,11 +129,14 @@ final class ActivityCell: UITableViewCell {
     }
 
     func configure(with activity: Activity) {
+        descriptionLabel.text = activity.description
+
         if activity.isCompleted {
             checkboxButton.setImage(
                 UIImage(systemName: "checkmark.circle"),
                 for: .normal
             )
+
             checkboxButton.backgroundColor = .systemBlue
             checkboxButton.layer.borderColor = UIColor.systemBlue.cgColor
             checkboxButton.tintColor = .white
@@ -123,13 +160,16 @@ final class ActivityCell: UITableViewCell {
         }
     }
 
+    @objc private func handleLongPress(_ gesture: UILongPressGestureRecognizer) {
+        guard gesture.state == .began else {
+            return
+        }
+
+        onLongPress?()
+    }
+    
     @objc private func checkboxTapped() {
         onCheckboxTapped?()
-    }
-
-    override func prepareForReuse() {
-        super.prepareForReuse()
-        onCheckboxTapped = nil
     }
 }
 

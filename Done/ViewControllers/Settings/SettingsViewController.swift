@@ -15,6 +15,7 @@ class SettingsViewController: UIViewController {
     private let navigationBar = AppNavigationBar()
     private let goBackButton = BackButtons()
     private let screenNameLabel = ScreenTitleLabel()
+    private let deleteAllDataButton = DeleteAllDataButton()
     
     override func viewDidLoad() {
         configureUI()
@@ -50,14 +51,69 @@ class SettingsViewController: UIViewController {
             make.center.equalToSuperview()
         }
         screenNameLabel.text = ScreenNamesTitleStrings.settingsScreenTitle.rawValue
+        view.addSubview(deleteAllDataButton)
+
+        deleteAllDataButton.snp.makeConstraints { make in
+            make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom).offset(-20)
+            make.leading.trailing.equalToSuperview().inset(20)
+            make.height.equalTo(56)
+        }
+
+        deleteAllDataButton.addTarget(
+            self,
+            action: #selector(deleteAllDataTapped),
+            for: .touchUpInside
+        )
     }
     
     private func goBack() {
         navigationController?.popViewController(animated: true)
     }
     
+    private func deleteAllUserData() {
+        ActivityStorage.shared.clear()
+        AuthAndRegistrationManager.shared.deleteAllUserData()
+
+        let authController = RegistrationAndLoginViewController()
+        let navigationController = UINavigationController(
+            rootViewController: authController
+        )
+        navigationController.setNavigationBarHidden(true, animated: false)
+
+        guard let windowScene = view.window?.windowScene,
+              let window = windowScene.windows.first else {
+            return
+        }
+
+        window.rootViewController = navigationController
+        window.makeKeyAndVisible()
+    }
+    
     @objc private func backButtonTapped(_ Sender: UIButton ) {
         goBack()
+    }
+    
+    
+    @objc private func deleteAllDataTapped() {
+        let alert = UIAlertController(
+            title: DeleteAlertStrings.deleteAlertTitle.rawValue,
+            message: DeleteAlertStrings.deleteAlertMessage.rawValue,
+            preferredStyle: .alert
+        )
+
+        alert.addAction(UIAlertAction(
+            title: DeleteAlertStrings.deleteAlertCancelButtonTitle.rawValue,
+            style: .cancel
+        ))
+
+        alert.addAction(UIAlertAction(
+            title: DeleteAlertStrings.deleteAlertDeleteButtonTitle.rawValue,
+            style: .destructive
+        ) { [weak self] _ in
+            self?.deleteAllUserData()
+        })
+
+        present(alert, animated: true)
     }
 }
 

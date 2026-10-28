@@ -40,16 +40,7 @@ class MainScreenViewController: UIViewController {
             make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
             make.height.equalTo(60)
         }
-        navigationBar.addSubview(goBackButton)
-        goBackButton.setTitleColor(.black, for: .normal)
-        goBackButton.snp.makeConstraints { make in
-            make.left.equalToSuperview().offset(16)
-            make.centerY.equalToSuperview()
-            make.top.equalToSuperview().offset(4)
-            make.bottom.equalToSuperview().offset(-4)
-            make.width.equalTo(50)
-        }
-        goBackButton.addTarget(self, action: #selector(backButtonTapped( _:)), for: .touchUpInside)
+        
         navigationBar.addSubview(screenNameLabel)
         screenNameLabel.snp.makeConstraints { make in
             make.center.equalToSuperview()
@@ -116,13 +107,6 @@ class MainScreenViewController: UIViewController {
         )
     }
     
-    private func goBack() {
-        navigationController?.popViewController(animated: true)
-    }
-    
-    @objc private func backButtonTapped(_ Sender: UIButton ) {
-        goBack()
-    }
     
     private func goToSettings() {
         let controller = SettingsViewController()

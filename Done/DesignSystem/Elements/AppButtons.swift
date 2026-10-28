@@ -127,7 +127,34 @@ final class LogoutButton: UIButton {
             for: .normal
         )
 
-        tintColor = .black
+        tintColor = .systemRed
+    }
+}
+
+final class DeleteAllDataButton: UIButton {
+
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        setupUI()
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    private func setupUI() {
+        backgroundColor = .white
+
+        setTitle(DeleteAlertStrings.deleteAlertButtonTitle.rawValue, for: .normal)
+        setTitleColor(.systemRed, for: .normal)
+
+        titleLabel?.font = .systemFont(
+            ofSize: 16,
+            weight: .semibold
+        )
+
+        layer.cornerRadius = 16
+        clipsToBounds = true
     }
 }
 

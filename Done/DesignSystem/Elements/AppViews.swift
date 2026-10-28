@@ -199,7 +199,7 @@ final class AddTaskView: UIView {
 
     // MARK: - Actions
     @objc private func titleTextFieldDidChange() {
-        let hasText = !(titleTextField.text ?? "")
+        let hasText = !(titleTextField.text ?? EmptyTextFieldStrings.emptyTextFieldState.rawValue)
             .trimmingCharacters(in: .whitespacesAndNewlines)
             .isEmpty
 
@@ -229,8 +229,8 @@ final class AddTaskView: UIView {
     }
 
     @objc private func saveButtonTapped() {
-        let title = titleTextField.text ?? ""
-        let description = descriptionTextField.text ?? ""
+        let title = titleTextField.text ?? EmptyTextFieldStrings.emptyTextFieldState.rawValue
+        let description = descriptionTextField.text ?? EmptyTextFieldStrings.emptyTextFieldState.rawValue
 
         delegate?.addTaskView(
             self,
@@ -286,6 +286,11 @@ final class AddTaskView: UIView {
             return
         }
         isExpanded = false
+        titleTextField.text = EmptyTextFieldStrings.emptyTextFieldState.rawValue
+        descriptionTextField.text = EmptyTextFieldStrings.emptyTextFieldState.rawValue
+
+        isDescriptionVisible = false
+        descriptionTextField.alpha = 0
         addButton.setImage(
             UIImage(systemName: "plus"),
             for: .normal

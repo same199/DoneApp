@@ -66,4 +66,12 @@ final class AuthAndRegistrationManager {
             forKey: Keys.isAuthUser.rawValue
         )
     }
+    
+    func deleteAllUserData() {
+        keychain.delete(Keys.firstName.rawValue)
+        keychain.delete(Keys.lastName.rawValue)
+        keychain.delete(Keys.email.rawValue)
+        keychain.delete(Keys.password.rawValue)
+        keychain.delete(Keys.isAuthUser.rawValue)
+    }
 }

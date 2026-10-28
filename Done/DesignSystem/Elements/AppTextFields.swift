@@ -8,6 +8,9 @@
 
 import UIKit
 
+
+import UIKit
+
 final class AppTextField: UITextField {
 
     override init(frame: CGRect) {
@@ -20,9 +23,37 @@ final class AppTextField: UITextField {
     }
 
     private func setupUI() {
-        borderStyle = .roundedRect
+        borderStyle = .none
         font = AppTypography.body
-        backgroundColor = .white
+        backgroundColor = UIColor(
+            red: 244.0 / 255.0,
+            green: 245.0 / 255.0,
+            blue: 247.0 / 255.0,
+            alpha: 1
+        )
+
+        layer.cornerRadius = 12
+        layer.borderWidth = 1
+        layer.borderColor = UIColor(
+            red: 230.0 / 255.0,
+            green: 232.0 / 255.0,
+            blue: 236.0 / 255.0,
+            alpha: 1
+        ).cgColor
+
+        clipsToBounds = true
+    }
+
+    override func textRect(forBounds bounds: CGRect) -> CGRect {
+        return bounds.insetBy(dx: 14, dy: 0)
+    }
+
+    override func editingRect(forBounds bounds: CGRect) -> CGRect {
+        return bounds.insetBy(dx: 14, dy: 0)
+    }
+
+    override func placeholderRect(forBounds bounds: CGRect) -> CGRect {
+        return bounds.insetBy(dx: 14, dy: 0)
     }
 }
 
@@ -38,10 +69,38 @@ final class PasswordTextField: UITextField {
     }
 
     private func setupUI() {
-        borderStyle = .roundedRect
+        borderStyle = .none
         font = AppTypography.body
-        backgroundColor = .white
+        backgroundColor = UIColor(
+            red: 244.0 / 255.0,
+            green: 245.0 / 255.0,
+            blue: 247.0 / 255.0,
+            alpha: 1
+        )
+
+        layer.cornerRadius = 12
+        layer.borderWidth = 1
+        layer.borderColor = UIColor(
+            red: 230.0 / 255.0,
+            green: 232.0 / 255.0,
+            blue: 236.0 / 255.0,
+            alpha: 1
+        ).cgColor
+
+        clipsToBounds = true
         isSecureTextEntry = true
+    }
+
+    override func textRect(forBounds bounds: CGRect) -> CGRect {
+        return bounds.insetBy(dx: 14, dy: 0)
+    }
+
+    override func editingRect(forBounds bounds: CGRect) -> CGRect {
+        return bounds.insetBy(dx: 14, dy: 0)
+    }
+
+    override func placeholderRect(forBounds bounds: CGRect) -> CGRect {
+        return bounds.insetBy(dx: 14, dy: 0)
     }
 }
 
@@ -57,10 +116,39 @@ final class EmailTextField: UITextField {
     }
 
     private func setupUI() {
-        borderStyle = .roundedRect
+        borderStyle = .none
         font = AppTypography.body
-        backgroundColor = .white
+        backgroundColor = UIColor(
+            red: 244.0 / 255.0,
+            green: 245.0 / 255.0,
+            blue: 247.0 / 255.0,
+            alpha: 1
+        )
+
+        layer.cornerRadius = 12
+        layer.borderWidth = 1
+        layer.borderColor = UIColor(
+            red: 230.0 / 255.0,
+            green: 232.0 / 255.0,
+            blue: 236.0 / 255.0,
+            alpha: 1
+        ).cgColor
+
+        clipsToBounds = true
         keyboardType = .emailAddress
         autocapitalizationType = .none
     }
+
+    override func textRect(forBounds bounds: CGRect) -> CGRect {
+        return bounds.insetBy(dx: 14, dy: 0)
+    }
+
+    override func editingRect(forBounds bounds: CGRect) -> CGRect {
+        return bounds.insetBy(dx: 14, dy: 0)
+    }
+
+    override func placeholderRect(forBounds bounds: CGRect) -> CGRect {
+        return bounds.insetBy(dx: 14, dy: 0)
+    }
 }
+

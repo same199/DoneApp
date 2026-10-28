@@ -26,6 +26,7 @@ final class AuthBottomSheetView: UIView {
     
     weak var delegate: AuthBottomSheetViewDelegate?
     private let closeButton = CloseButton()
+    private let loginErrorLabel = ErrorLabel()
     private let registrationButton: AppButtons = {
         let button = AppButtons()
         button.setTitle("Регистрация", for: .normal)
@@ -58,6 +59,7 @@ final class AuthBottomSheetView: UIView {
         textField.placeholder = "Пароль"
         return textField
     }()
+    
     private let firstNameTextField: AppTextField = {
         let textField = AppTextField()
         textField.placeholder = "Имя"
@@ -103,6 +105,7 @@ final class AuthBottomSheetView: UIView {
             arrangedSubviews: [
                 loginTextField,
                 passwordTextField,
+                loginErrorLabel,
                 loginSubmitButton
             ]
         )
@@ -143,6 +146,9 @@ final class AuthBottomSheetView: UIView {
     
     private func configureUI() {
         
+        loginErrorLabel.text = "Неверный логин или пароль"
+        loginErrorLabel.isHidden = true
+        
         backgroundColor = .white
         layer.cornerRadius = 24
         layer.maskedCorners = [
@@ -155,7 +161,7 @@ final class AuthBottomSheetView: UIView {
         addSubview(loginStackView)
         addSubview(registrationStackView)
         startStackView.snp.makeConstraints { make in
-            make.top.equalToSuperview().offset(16)
+            make.top.equalToSuperview().offset(8)
             make.leading.trailing.equalToSuperview()
                 .inset(24)
             make.height.equalTo(116)
@@ -164,7 +170,7 @@ final class AuthBottomSheetView: UIView {
             make.top.equalToSuperview().offset(60)
             make.leading.trailing.equalToSuperview()
                 .inset(24)
-            make.height.equalTo(182)
+            make.height.equalTo(210)
         }
         registrationStackView.snp.makeConstraints { make in
             make.top.equalToSuperview().offset(60)
@@ -228,6 +234,17 @@ final class AuthBottomSheetView: UIView {
         delegate?.authBottomSheetDidTapClose()
     }
     
+    func setLoginFieldsError(_ isError: Bool) {
+        let borderColor: UIColor = isError ? .systemRed : .clear
+
+        loginTextField.layer.borderWidth = isError ? 0.5 : 0
+        loginTextField.layer.borderColor = borderColor.cgColor
+
+        passwordTextField.layer.borderWidth = isError ? 0.5 : 0
+        passwordTextField.layer.borderColor = borderColor.cgColor
+
+        loginErrorLabel.isHidden = !isError
+    }
     
     func showLogin() {
         self.snp.updateConstraints { make in
@@ -271,6 +288,9 @@ final class AuthBottomSheetView: UIView {
     }
     
     func showStart() {
+        setLoginFieldsError(false)
+        loginTextField.text = EmptyTextFieldStrings.emptyTextFieldState.rawValue
+        passwordTextField.text = EmptyTextFieldStrings.emptyTextFieldState.rawValue
         self.snp.updateConstraints { make in
             make.height.equalTo(150)
         }
@@ -296,8 +316,8 @@ final class AuthBottomSheetView: UIView {
     
     @objc private func loginSubmitButtonTapped() {
 
-        let login = loginTextField.text ?? ""
-        let password = passwordTextField.text ?? ""
+        let login = loginTextField.text ?? EmptyTextFieldStrings.emptyTextFieldState.rawValue
+        let password = passwordTextField.text ?? EmptyTextFieldStrings.emptyTextFieldState.rawValue
 
         delegate?.authBottomSheetDidTapLoginSubmit(
             login: login,
@@ -306,11 +326,11 @@ final class AuthBottomSheetView: UIView {
     }
     
     @objc private func registrationSubmitButtonTapped() {
-        let firstName = firstNameTextField.text ?? ""
-        let lastName = lastNameTextField.text ?? ""
-        let email = emailTextField.text ?? ""
-        let password = registrationPasswordTextField.text ?? ""
-        let repeatPassword = repeatPasswordTextField.text ?? ""
+        let firstName = firstNameTextField.text ?? EmptyTextFieldStrings.emptyTextFieldState.rawValue
+        let lastName = lastNameTextField.text ?? EmptyTextFieldStrings.emptyTextFieldState.rawValue
+        let email = emailTextField.text ?? EmptyTextFieldStrings.emptyTextFieldState.rawValue
+        let password = registrationPasswordTextField.text ?? EmptyTextFieldStrings.emptyTextFieldState.rawValue
+        let repeatPassword = repeatPasswordTextField.text ?? EmptyTextFieldStrings.emptyTextFieldState.rawValue
 
         delegate?.authBottomSheetDidTapRegistrationSubmit(
             firstName: firstName,
@@ -442,5 +462,142 @@ final class ActivityBottomSheetView: UIView {
 
     @objc private func closeButtonTapped() {
         delegate?.activityBottomSheetDidTapClose()
+    }
+}
+
+protocol ActivityEditBottomSheetViewDelegate: AnyObject {
+    func activityEditBottomSheet(
+        didSaveTitle title: String,
+        description: String,
+        for activity: Activity
+    )
+    func activityEditBottomSheetDidCancel()
+}
+
+final class ActivityEditBottomSheetView: UIView {
+
+    weak var delegate: ActivityEditBottomSheetViewDelegate?
+
+    private let activity: Activity
+
+    private let titleField = UITextField()
+    private let descriptionField = UITextField()
+    private let saveButton = UIButton(type: .system)
+    private let cancelButton = UIButton(type: .system)
+
+    init(activity: Activity) {
+        self.activity = activity
+        super.init(frame: .zero)
+
+        configureUI()
+        configureConstraints()
+        configureFields()
+        configureActions()
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    private func configureUI() {
+        backgroundColor = .white
+        layer.cornerRadius = 24
+        layer.maskedCorners = [
+            .layerMinXMinYCorner,
+            .layerMaxXMinYCorner
+        ]
+        clipsToBounds = true
+
+        titleField.placeholder = "Название задачи"
+        titleField.borderStyle = .roundedRect
+        titleField.font = .systemFont(ofSize: 16)
+
+        descriptionField.placeholder = "Описание задачи"
+        descriptionField.borderStyle = .roundedRect
+        descriptionField.font = .systemFont(ofSize: 16)
+
+        saveButton.setTitle("Сохранить", for: .normal)
+        saveButton.setTitleColor(.white, for: .normal)
+        saveButton.backgroundColor = UIColor(
+            red: 57 / 255,
+            green: 117 / 255,
+            blue: 215 / 255,
+            alpha: 1
+        )
+        saveButton.layer.cornerRadius = 12
+
+        cancelButton.setTitle("Отмена", for: .normal)
+        cancelButton.setTitleColor(.secondaryLabel, for: .normal)
+
+        addSubview(titleField)
+        addSubview(descriptionField)
+        addSubview(saveButton)
+        addSubview(cancelButton)
+    }
+
+    private func configureConstraints() {
+        titleField.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(32)
+            make.leading.trailing.equalToSuperview().inset(24)
+            make.height.equalTo(48)
+        }
+
+        descriptionField.snp.makeConstraints { make in
+            make.top.equalTo(titleField.snp.bottom).offset(16)
+            make.leading.trailing.equalTo(titleField)
+            make.height.equalTo(48)
+        }
+
+        saveButton.snp.makeConstraints { make in
+            make.top.equalTo(descriptionField.snp.bottom).offset(24)
+            make.leading.trailing.equalTo(titleField)
+            make.height.equalTo(50)
+        }
+
+        cancelButton.snp.makeConstraints { make in
+            make.top.equalTo(saveButton.snp.bottom).offset(8)
+            make.centerX.equalToSuperview()
+            make.bottom.equalToSuperview().inset(24)
+            make.height.equalTo(40)
+        }
+    }
+
+    private func configureFields() {
+        titleField.text = activity.title
+        descriptionField.text = activity.description
+    }
+
+    private func configureActions() {
+        saveButton.addTarget(
+            self,
+            action: #selector(saveButtonTapped),
+            for: .touchUpInside
+        )
+
+        cancelButton.addTarget(
+            self,
+            action: #selector(cancelButtonTapped),
+            for: .touchUpInside
+        )
+    }
+
+    @objc private func saveButtonTapped() {
+        let title = titleField.text?
+            .trimmingCharacters(in: .whitespacesAndNewlines) ?? EmptyTextFieldStrings.emptyTextFieldState.rawValue
+
+        let description = descriptionField.text?
+            .trimmingCharacters(in: .whitespacesAndNewlines) ?? EmptyTextFieldStrings.emptyTextFieldState.rawValue
+
+        guard !title.isEmpty else { return }
+
+        delegate?.activityEditBottomSheet(
+            didSaveTitle: title,
+            description: description,
+            for: activity
+        )
+    }
+
+    @objc private func cancelButtonTapped() {
+        delegate?.activityEditBottomSheetDidCancel()
     }
 }

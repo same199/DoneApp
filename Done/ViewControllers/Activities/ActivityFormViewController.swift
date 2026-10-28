@@ -20,6 +20,7 @@ class ActivityFormViewController: UIViewController {
     
     private let bottomSheetOverlay = UIView()
     private var activityBottomSheet: ActivityBottomSheetView?
+    private var activityEditBottomSheet: ActivityEditBottomSheetView?
     
     private var addTaskWidthConstraint: Constraint?
     private var addTaskHeightConstraint: Constraint?
@@ -280,6 +281,66 @@ class ActivityFormViewController: UIViewController {
         })
     }
     
+    private func showEditActivitySheet(for activity: Activity) {
+        bottomSheetOverlay.backgroundColor = UIColor.black.withAlphaComponent(0.4)
+        bottomSheetOverlay.alpha = 0
+
+        view.addSubview(bottomSheetOverlay)
+
+        let tapGesture = UITapGestureRecognizer(
+            target: self,
+            action: #selector(editBottomSheetOverlayTapped)
+        )
+        bottomSheetOverlay.addGestureRecognizer(tapGesture)
+
+        bottomSheetOverlay.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
+
+        let sheet = ActivityEditBottomSheetView(activity: activity)
+        sheet.delegate = self
+        activityEditBottomSheet = sheet
+
+        view.addSubview(sheet)
+
+        sheet.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview()
+            make.height.equalTo(300)
+            make.top.equalTo(view.snp.bottom)
+        }
+
+        view.layoutIfNeeded()
+
+        sheet.snp.updateConstraints { make in
+            make.top.equalTo(view.snp.bottom).offset(-300)
+        }
+
+        UIView.animate(withDuration: 0.3) {
+            self.bottomSheetOverlay.alpha = 1
+            self.view.layoutIfNeeded()
+        }
+    }
+    
+    @objc private func editBottomSheetOverlayTapped() {
+        hideEditActivitySheet()
+    }
+
+    private func hideEditActivitySheet() {
+        UIView.animate(withDuration: 0.3, animations: {
+            self.bottomSheetOverlay.alpha = 0
+
+            self.activityEditBottomSheet?.snp.updateConstraints { make in
+                make.top.equalTo(self.view.snp.bottom)
+            }
+
+            self.view.layoutIfNeeded()
+        }, completion: { _ in
+            self.activityEditBottomSheet?.removeFromSuperview()
+            self.activityEditBottomSheet = nil
+            self.bottomSheetOverlay.removeFromSuperview()
+        })
+    }
+    
     @objc private func keyboardWillShow(_ notification: Notification) {
         guard
             let userInfo = notification.userInfo,
@@ -407,6 +468,16 @@ extension ActivityFormViewController: UITableViewDataSource {
         cell.onCheckboxTapped = { [weak self] in
             self?.completeActivity(at: indexPath.row)
         }
+        
+        cell.onLongPress = { [weak self] in
+            guard let self,
+                  self.activities.indices.contains(indexPath.row) else { return }
+
+            let activity = self.activities[indexPath.row]
+            guard !activity.isCompleted else { return }
+
+            self.showEditActivitySheet(for: activity)
+        }
 
         return cell
     }
@@ -435,5 +506,34 @@ extension ActivityFormViewController: ActivityBottomSheetViewDelegate {
 
     func activityBottomSheetDidTapClose() {
         hideActivityBottomSheet()
+    }
+}
+
+extension ActivityFormViewController: ActivityEditBottomSheetViewDelegate {
+
+    func activityEditBottomSheet(
+        didSaveTitle title: String,
+        description: String,
+        for activity: Activity
+    ) {
+        guard let index = activities.firstIndex(where: {
+            $0.id == activity.id
+        }) else { return }
+
+        activities[index].title = title
+        activities[index].description = description
+
+        ActivityStorage.shared.update(activities[index])
+
+        tableView.reloadRows(
+            at: [IndexPath(row: index, section: 0)],
+            with: .automatic
+        )
+
+        hideEditActivitySheet()
+    }
+
+    func activityEditBottomSheetDidCancel() {
+        hideEditActivitySheet()
     }
 }

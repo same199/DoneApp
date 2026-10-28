@@ -22,10 +22,20 @@ class RegistrationAndLoginViewController: UIViewController, AuthBottomSheetViewD
     }
 
     func configureUI() {
-        view.backgroundColor = .systemPink
+        view.backgroundColor = UIColor(
+            red: 244.0 / 255.0,
+            green: 245.0 / 255.0,
+            blue: 247.0 / 255.0,
+            alpha: 1
+        )
         view.addSubview(authAndRegisterBottomSheet)
         authAndRegisterBottomSheet.backgroundColor = .white
-        authAndRegisterBottomSheet.layer.cornerRadius = 16
+        authAndRegisterBottomSheet.layer.cornerRadius = 20
+        authAndRegisterBottomSheet.layer.maskedCorners = [
+            .layerMinXMinYCorner,
+            .layerMaxXMinYCorner
+        ]
+        authAndRegisterBottomSheet.clipsToBounds = true
         authAndRegisterBottomSheet.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview()
             bottomSheetBottomConstraint = make.bottom.equalToSuperview().constraint
@@ -128,9 +138,12 @@ class RegistrationAndLoginViewController: UIViewController, AuthBottomSheetViewD
 
         guard login == savedEmail,
               password == savedPassword else {
+            authAndRegisterBottomSheet.setLoginFieldsError(true)
             print("Неверный логин или пароль")
             return
         }
+
+        authAndRegisterBottomSheet.setLoginFieldsError(false)
 
         AuthAndRegistrationManager.shared.setAuthUser(true)
         goToMainScreen()
