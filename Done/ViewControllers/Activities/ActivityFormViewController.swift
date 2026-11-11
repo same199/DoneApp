@@ -15,6 +15,28 @@ class ActivityFormViewController: UIViewController {
     private let screenNameLabel = ScreenTitleLabel()
     private let goBackButton = BackButtons()
     private let addTaskView = AddTaskView()
+    private let emptyStateImageView: UIImageView = {
+        let imageView = UIImageView(
+            image: UIImage(systemName: "list.bullet.rectangle.fill")
+        )
+        imageView.tintColor = UIColor(
+            red: 180 / 255,
+            green: 185 / 255,
+            blue: 195 / 255,
+            alpha: 1
+        )
+        imageView.contentMode = .scaleAspectFit
+        return imageView
+    }()
+
+    private let emptyStateLabel: UILabel = {
+        let label = UILabel()
+        label.text = EmptyTextFieldStrings.emptuActivityListState.rawValue
+        label.textColor = .secondaryLabel
+        label.font = .systemFont(ofSize: 16, weight: .medium)
+        label.textAlignment = .center
+        return label
+    }()
     private let tableView = UITableView()
     private var activities: [Activity] = []
     
@@ -197,11 +219,27 @@ class ActivityFormViewController: UIViewController {
             forCellReuseIdentifier: ActivityCell.reuseIdentifier
         )
         
+        containerView.addSubview(emptyStateImageView)
+        containerView.addSubview(emptyStateLabel)
+
+        emptyStateImageView.snp.makeConstraints { make in
+            make.centerX.equalTo(tableView)
+            make.centerY.equalTo(tableView).offset(-20)
+            make.width.height.equalTo(64)
+        }
+
+        emptyStateLabel.snp.makeConstraints { make in
+            make.top.equalTo(emptyStateImageView.snp.bottom).offset(12)
+            make.centerX.equalTo(tableView)
+            make.leading.trailing.equalTo(tableView).inset(20)
+        }
+        
     }
     
     private func loadActivities() {
         activities = ActivityStorage.shared.load()
         tableView.reloadData()
+        updateEmptyState()
     }
     
     private func completeActivity(at index: Int) {
@@ -397,6 +435,14 @@ class ActivityFormViewController: UIViewController {
     
     @objc private func bottomSheetOverlayTapped() {
         hideActivityBottomSheet()
+    }
+    
+    private func updateEmptyState() {
+        let isEmpty = activities.isEmpty
+
+        emptyStateImageView.isHidden = !isEmpty
+        emptyStateLabel.isHidden = !isEmpty
+        tableView.isHidden = isEmpty
     }
 }
 

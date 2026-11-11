@@ -131,6 +131,33 @@ final class LogoutButton: UIButton {
     }
 }
 
+final class LogoutFromSettingsButton: UIButton {
+
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        configure()
+    }
+
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+        configure()
+    }
+
+    private func configure() {
+        setTitle("Выйти из аккаунта", for: .normal)
+        setTitleColor(.white, for: .normal)
+        backgroundColor = UIColor(
+            red: 1.0,
+            green: 59.0 / 255.0,
+            blue: 48.0 / 255.0,
+            alpha: 1
+        )
+        titleLabel?.font = .systemFont(ofSize: 16, weight: .semibold)
+        layer.cornerRadius = 16
+        clipsToBounds = true
+    }
+}
+
 final class DeleteAllDataButton: UIButton {
 
     override init(frame: CGRect) {
@@ -155,6 +182,44 @@ final class DeleteAllDataButton: UIButton {
 
         layer.cornerRadius = 16
         clipsToBounds = true
+    }
+}
+
+final class AboutAppButton: UIButton {
+
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        setupUI()
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    private func setupUI() {
+        backgroundColor = .white
+        setTitleColor(.black, for: .normal)
+        titleLabel?.font = AppTypography.button
+        layer.cornerRadius = 12
+    }
+}
+
+final class UserInfoButton: UIButton {
+
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        setupUI()
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    private func setupUI() {
+        backgroundColor = .white
+        setTitleColor(.black, for: .normal)
+        titleLabel?.font = AppTypography.button
+        layer.cornerRadius = 12
     }
 }
 

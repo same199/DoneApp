@@ -27,6 +27,11 @@ final class AuthBottomSheetView: UIView {
     weak var delegate: AuthBottomSheetViewDelegate?
     private let closeButton = CloseButton()
     private let loginErrorLabel = ErrorLabel()
+    private let emailErrorLabel = ErrorLabel()
+    private let passwordErrorLabel = ErrorLabel()
+    private let loginBaseHeight: CGFloat = 210
+    private let registrationBaseHeight: CGFloat = 400
+    private let errorHeight: CGFloat = 40
     private let registrationButton: AppButtons = {
         let button = AppButtons()
         button.setTitle("Регистрация", for: .normal)
@@ -110,8 +115,8 @@ final class AuthBottomSheetView: UIView {
             ]
         )
         stackView.axis = .vertical
-        stackView.spacing = 16
-        stackView.distribution = .fillEqually
+        stackView.spacing = 8
+        stackView.distribution = .equalSpacing
         return stackView
     }()
     private lazy var registrationStackView: UIStackView = {
@@ -120,16 +125,19 @@ final class AuthBottomSheetView: UIView {
                 firstNameTextField,
                 lastNameTextField,
                 emailTextField,
+                emailErrorLabel,
                 registrationPasswordTextField,
                 repeatPasswordTextField,
+                passwordErrorLabel,
                 registrationSubmitButton
             ]
         )
         stackView.axis = .vertical
-        stackView.spacing = 16
-        stackView.distribution = .fillEqually
+        stackView.spacing = 8
+        stackView.distribution = .equalSpacing
         return stackView
     }()
+    
     
 
     
@@ -146,8 +154,14 @@ final class AuthBottomSheetView: UIView {
     
     private func configureUI() {
         
-        loginErrorLabel.text = "Неверный логин или пароль"
+        loginErrorLabel.text = ErrorLabelStrings.loginErrorLabelState.rawValue
         loginErrorLabel.isHidden = true
+        
+        emailErrorLabel.text = ErrorLabelStrings.emailErrorLabelState.rawValue
+        emailErrorLabel.isHidden = true
+
+        passwordErrorLabel.text = ErrorLabelStrings.passwordAndConfirmPasswordErrorLabelState.rawValue
+        passwordErrorLabel.isHidden = true
         
         backgroundColor = .white
         layer.cornerRadius = 24
@@ -176,7 +190,32 @@ final class AuthBottomSheetView: UIView {
             make.top.equalToSuperview().offset(60)
             make.leading.trailing.equalToSuperview()
                 .inset(24)
-            make.height.equalTo(360)
+            make.height.equalTo(400)
+        }
+        [
+            loginTextField,
+            passwordTextField,
+            firstNameTextField,
+            lastNameTextField,
+            emailTextField,
+            registrationPasswordTextField,
+            repeatPasswordTextField
+        ].forEach {
+            $0.snp.makeConstraints { make in
+                make.height.equalTo(48)
+            }
+        }
+        
+        [
+            loginSubmitButton,
+            registrationSubmitButton
+        ].forEach {
+            $0.snp.makeConstraints { make in
+                make.height.equalTo(50).priority(.required)
+            }
+
+            $0.setContentHuggingPriority(.required, for: .vertical)
+            $0.setContentCompressionResistancePriority(.required, for: .vertical)
         }
 
         closeButton.snp.makeConstraints { make in
@@ -219,8 +258,69 @@ final class AuthBottomSheetView: UIView {
             action: #selector(closeButtonTapped),
             for: .touchUpInside
         )
+        
+        loginTextField.addTarget(
+            self,
+            action: #selector(loginFieldsChanged),
+            for: .editingChanged
+        )
+
+        passwordTextField.addTarget(
+            self,
+            action: #selector(loginFieldsChanged),
+            for: .editingChanged
+        )
+
+        loginSubmitButton.isEnabled = false
+        
+        let registrationFields = [
+            firstNameTextField,
+            lastNameTextField,
+            emailTextField,
+            registrationPasswordTextField,
+            repeatPasswordTextField
+        ]
+
+        registrationFields.forEach {
+            $0.addTarget(
+                self,
+                action: #selector(registrationFieldsChanged),
+                for: .editingChanged
+            )
+        }
+
+        registrationSubmitButton.isEnabled = false
     }
     
+    @objc private func loginFieldsChanged() {
+        let isLoginFilled = !(loginTextField.text ?? EmptyTextFieldStrings.emptyTextFieldState.rawValue).isEmpty
+        let isPasswordFilled = !(passwordTextField.text ?? EmptyTextFieldStrings.emptyTextFieldState.rawValue).isEmpty
+
+        loginSubmitButton.isEnabled = isLoginFilled && isPasswordFilled
+    }
+    
+    private func isValidEmail(_ email: String) -> Bool {
+        let emailRegEx = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}"
+        return email.range(
+            of: emailRegEx,
+            options: .regularExpression
+        ) != nil
+    }
+    
+    @objc private func registrationFieldsChanged() {
+        let isFirstNameFilled = !(firstNameTextField.text ?? "").isEmpty
+        let isLastNameFilled = !(lastNameTextField.text ?? "").isEmpty
+        let isEmailFilled = !(emailTextField.text ?? "").isEmpty
+        let isPasswordFilled = !(registrationPasswordTextField.text ?? "").isEmpty
+        let isRepeatPasswordFilled = !(repeatPasswordTextField.text ?? "").isEmpty
+
+        registrationSubmitButton.isEnabled =
+            isFirstNameFilled &&
+            isLastNameFilled &&
+            isEmailFilled &&
+            isPasswordFilled &&
+            isRepeatPasswordFilled
+    }
     
     @objc private func loginButtonTapped() {
         delegate?.authBottomSheetDidTapLogin()
@@ -244,6 +344,53 @@ final class AuthBottomSheetView: UIView {
         passwordTextField.layer.borderColor = borderColor.cgColor
 
         loginErrorLabel.isHidden = !isError
+        layoutIfNeeded()
+
+        let errorLabelHeight = isError
+            ? loginErrorLabel.systemLayoutSizeFitting(
+                CGSize(
+                    width: loginStackView.bounds.width,
+                    height: UIView.layoutFittingCompressedSize.height
+                )
+            ).height
+            : 0
+
+        let newHeight = loginBaseHeight + errorLabelHeight
+
+        loginStackView.snp.updateConstraints { make in
+            make.height.equalTo(newHeight)
+        }
+
+        snp.updateConstraints { make in
+            make.height.equalTo(newHeight + 90)
+        }
+        DispatchQueue.main.async {
+            self.printLoginLayout(isError ? "ERROR" : "RESET")
+        }
+    }
+    
+    //логирование для понимания ошибки
+    private func printLoginLayout(_ state: String) {
+        layoutIfNeeded()
+
+        print("\n--- LOGIN LAYOUT: \(state) ---")
+        print("Stack frame:", loginStackView.frame)
+        print("Stack height:", loginStackView.bounds.height)
+        print("Stack spacing:", loginStackView.spacing)
+
+        print("Login field:", loginTextField.frame)
+        print("Password field:", passwordTextField.frame)
+        print("Error label:", loginErrorLabel.frame)
+        print("Submit button:", loginSubmitButton.frame)
+
+        print("Top spacing:",
+              passwordTextField.frame.minY - loginTextField.frame.maxY)
+        print("Error spacing:",
+              loginErrorLabel.frame.minY - passwordTextField.frame.maxY)
+        print("Button spacing:",
+              loginSubmitButton.frame.minY - loginErrorLabel.frame.maxY)
+
+        print("------------------------------\n")
     }
     
     func showLogin() {
@@ -251,6 +398,9 @@ final class AuthBottomSheetView: UIView {
             make.height.equalTo(300)
         }
         loginStackView.isHidden = false
+        DispatchQueue.main.async {
+            self.printLoginLayout("OPEN")
+        }
         closeButton.isHidden = false
         closeButton.alpha = 1
         UIView.animate(
@@ -288,6 +438,7 @@ final class AuthBottomSheetView: UIView {
     }
     
     func showStart() {
+        resetRegistrationForm()
         setLoginFieldsError(false)
         loginTextField.text = EmptyTextFieldStrings.emptyTextFieldState.rawValue
         passwordTextField.text = EmptyTextFieldStrings.emptyTextFieldState.rawValue
@@ -312,6 +463,32 @@ final class AuthBottomSheetView: UIView {
         }
     }
     
+    private func resetRegistrationForm() {
+        // Очищаем поля
+        firstNameTextField.text = EmptyTextFieldStrings.emptyTextFieldState.rawValue
+        lastNameTextField.text = EmptyTextFieldStrings.emptyTextFieldState.rawValue
+        emailTextField.text = EmptyTextFieldStrings.emptyTextFieldState.rawValue
+        registrationPasswordTextField.text = EmptyTextFieldStrings.emptyTextFieldState.rawValue
+        repeatPasswordTextField.text = EmptyTextFieldStrings.emptyTextFieldState.rawValue
+
+        // Скрываем сообщения об ошибках
+        emailErrorLabel.isHidden = true
+        passwordErrorLabel.isHidden = true
+
+        // Сбрасываем красные рамки
+        [
+            emailTextField,
+            registrationPasswordTextField,
+            repeatPasswordTextField
+        ].forEach {
+            $0.layer.borderWidth = 0
+            $0.layer.borderColor = UIColor.clear.cgColor
+        }
+
+        // Деактивируем кнопку регистрации
+        registrationSubmitButton.isEnabled = false
+    }
+    
     
     
     @objc private func loginSubmitButtonTapped() {
@@ -332,6 +509,31 @@ final class AuthBottomSheetView: UIView {
         let password = registrationPasswordTextField.text ?? EmptyTextFieldStrings.emptyTextFieldState.rawValue
         let repeatPassword = repeatPasswordTextField.text ?? EmptyTextFieldStrings.emptyTextFieldState.rawValue
 
+
+        let isEmailValid = isValidEmail(email)
+        let arePasswordsEqual = password == repeatPassword
+
+        emailErrorLabel.isHidden = isEmailValid
+        passwordErrorLabel.isHidden = arePasswordsEqual
+        let hasErrors = !isEmailValid || !arePasswordsEqual
+        let newHeight = registrationBaseHeight + (hasErrors ? errorHeight : 0)
+
+        snp.updateConstraints { make in
+            make.height.equalTo(newHeight + 120)
+        }
+
+        emailTextField.layer.borderWidth = isEmailValid ? 0 : 0.5
+        emailTextField.layer.borderColor = isEmailValid ? UIColor.clear.cgColor : UIColor.systemRed.cgColor
+
+        registrationPasswordTextField.layer.borderWidth = arePasswordsEqual ? 0 : 0.5
+        registrationPasswordTextField.layer.borderColor = arePasswordsEqual ? UIColor.clear.cgColor : UIColor.systemRed.cgColor
+
+        repeatPasswordTextField.layer.borderWidth = arePasswordsEqual ? 0 : 0.5
+        repeatPasswordTextField.layer.borderColor = arePasswordsEqual ? UIColor.clear.cgColor : UIColor.systemRed.cgColor
+
+        guard isEmailValid && arePasswordsEqual else {
+            return
+        }
         delegate?.authBottomSheetDidTapRegistrationSubmit(
             firstName: firstName,
             lastName: lastName,
@@ -340,7 +542,7 @@ final class AuthBottomSheetView: UIView {
             repeatPassword: repeatPassword
         )
     }
-  
+
 }
 
 
@@ -579,6 +781,8 @@ final class ActivityEditBottomSheetView: UIView {
             action: #selector(cancelButtonTapped),
             for: .touchUpInside
         )
+        
+        
     }
 
     @objc private func saveButtonTapped() {

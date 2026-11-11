@@ -325,4 +325,188 @@ final class AddTaskView: UIView {
 }
 
 
+final class AboutAppView: UIView {
+
+    private let titleLabel = UILabel()
+
+    private let appVersionLabel = UILabel()
+    private let developerLabel = UILabel()
+    private let iosVersionLabel = UILabel()
+
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        setupUI()
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    private func setupUI() {
+        backgroundColor = .white
+        layer.cornerRadius = 20
+        clipsToBounds = true
+
+        titleLabel.text = AboutAppString.aboutAppTitleState.rawValue
+        titleLabel.font = .systemFont(ofSize: 20, weight: .semibold)
+        titleLabel.textColor = .black
+
+        let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "—"
+        let buildVersion = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "—"
+        let iosVersion = UIDevice.current.systemVersion
+
+        configureValueLabel(appVersionLabel, value: "\(appVersion) (\(buildVersion))")
+        configureValueLabel(developerLabel, value: AboutAppString.developerInfo.rawValue)
+        configureValueLabel(iosVersionLabel, value: "\(AboutAppString.iOSstringsState.rawValue) \(iosVersion)")
+
+        let rowsStackView = UIStackView(arrangedSubviews: [
+            createRow(title: AboutAppString.appVersionState.rawValue, valueLabel: appVersionLabel),
+            createRow(title: AboutAppString.developerNameState.rawValue, valueLabel: developerLabel),
+            createRow(title: AboutAppString.versionOSState.rawValue, valueLabel: iosVersionLabel)
+        ])
+
+        rowsStackView.axis = .vertical
+        rowsStackView.spacing = 20
+        rowsStackView.distribution = .fillEqually
+
+        addSubview(titleLabel)
+        addSubview(rowsStackView)
+
+        titleLabel.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(24)
+            make.leading.trailing.equalToSuperview().inset(20)
+        }
+
+        rowsStackView.snp.makeConstraints { make in
+            make.top.equalTo(titleLabel.snp.bottom).offset(24)
+            make.leading.trailing.equalToSuperview().inset(20)
+            make.bottom.equalToSuperview().offset(-24)
+        }
+    }
+
+    private func configureValueLabel(_ label: UILabel, value: String) {
+        label.text = value
+        label.font = .systemFont(ofSize: 15, weight: .medium)
+        label.textColor = UIColor(
+            red: 57.0 / 255.0,
+            green: 117.0 / 255.0,
+            blue: 215.0 / 255.0,
+            alpha: 1
+        )
+    }
+
+    private func createRow(title: String, valueLabel: UILabel) -> UIStackView {
+        let titleLabel = UILabel()
+        titleLabel.text = title
+        titleLabel.font = .systemFont(ofSize: 15)
+        titleLabel.textColor = .darkGray
+
+        let row = UIStackView(arrangedSubviews: [
+            titleLabel,
+            valueLabel
+        ])
+
+        row.axis = .horizontal
+        row.distribution = .equalSpacing
+        row.alignment = .center
+
+        return row
+    }
+}
+
+final class InfoAboutUserView: UIView {
+    
+    private let titleLabel = UILabel()
+
+    private let userNameLabel = UILabel()
+    private let userSurnameLabel = UILabel()
+    
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        setupUI()
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    private func setupUI(){
+        backgroundColor = .white
+        layer.cornerRadius = 20
+        clipsToBounds = true
+
+        titleLabel.text = UserInfoString.userInfoTitleState.rawValue
+        titleLabel.font = .systemFont(ofSize: 20, weight: .semibold)
+        titleLabel.textColor = .black
+        AuthAndRegistrationManager.shared.loadUser { [weak self] firstName, lastName in
+            guard let self = self else { return }
+
+            if let firstName = firstName {
+                self.configureValueLabel(self.userNameLabel, value: firstName)
+            }
+
+            if let lastName = lastName {
+                self.configureValueLabel(self.userSurnameLabel, value: lastName)
+            }
+        }
+        
+        let rowsStackView = UIStackView(arrangedSubviews: [
+            createRow(title: "Name", valueLabel: userNameLabel),
+            createRow(title: "Surname", valueLabel: userSurnameLabel),
+        ])
+
+        rowsStackView.axis = .vertical
+        rowsStackView.spacing = 20
+        rowsStackView.distribution = .fillEqually
+
+        addSubview(titleLabel)
+        addSubview(rowsStackView)
+
+        titleLabel.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(24)
+            make.leading.trailing.equalToSuperview().inset(20)
+        }
+
+        rowsStackView.snp.makeConstraints { make in
+            make.top.equalTo(titleLabel.snp.bottom).offset(24)
+            make.leading.trailing.equalToSuperview().inset(20)
+            make.bottom.equalToSuperview().offset(-24)
+        }
+    }
+    
+    private func configureValueLabel(_ label: UILabel, value: String) {
+        label.text = value
+        label.font = .systemFont(ofSize: 15, weight: .medium)
+        label.textColor = UIColor(
+            red: 57.0 / 255.0,
+            green: 117.0 / 255.0,
+            blue: 215.0 / 255.0,
+            alpha: 1
+        )
+    }
+
+    private func createRow(title: String, valueLabel: UILabel) -> UIStackView {
+        let titleLabel = UILabel()
+        titleLabel.text = title
+        titleLabel.font = .systemFont(ofSize: 15)
+        titleLabel.textColor = .darkGray
+
+        let row = UIStackView(arrangedSubviews: [
+            titleLabel,
+            valueLabel
+        ])
+
+        row.axis = .horizontal
+        row.distribution = .fill
+        row.alignment = .center
+
+        titleLabel.textAlignment = .left
+        valueLabel.textAlignment = .right
+
+        return row
+    }
+}
+
+
+
 

@@ -12,6 +12,13 @@ public enum LoginAndRegistrationViewStrings: String {
     case registrationButtoTittle = "Registration"
 }
 
+public enum LogoutAlertStrings: String {
+    case logoutAlertButtonTittle = "Logout"
+    case logoutAlertCancelButtonTittle = "Cancel"
+    case logoutAlertTitle = "Log out of your account?"
+    case logoutAlertMessage = "You will be able to log in again using your details"
+}
+
 public enum GoBackStrings: String {
     case goBackButtonTittle = "Back"
 
@@ -42,4 +49,27 @@ public enum DeleteAlertStrings: String {
 
 public enum EmptyTextFieldStrings: String {
     case emptyTextFieldState = ""
+    case emptuActivityListState = "List with activities is empty"
+}
+
+public enum ErrorLabelStrings: String {
+    case loginErrorLabelState = "Incorrect email or password"
+    case emailErrorLabelState = "Incorrect email format"
+    case passwordAndConfirmPasswordErrorLabelState = "Passwords do not match"
+}
+
+public enum AboutAppString: String {
+    case aboutAppTitleState = "About"
+    case aboutAppState = "DoneApp is a simple app for tracking your progress in completing tasks."
+    case aboutAppButtonTitleState = "OK"
+    case appVersionState = "App version:"
+    case versionOSState = "OS version:"
+    case developerNameState = "Developer:"
+    case developerInfo = "Artsiom Stulba"
+    case iOSstringsState = "iOS"
+}
+
+public enum UserInfoString: String {
+    case userInfoTitleState = "User info"
+    case userInfoLogoutButtonTitleState = "Logout"
 }

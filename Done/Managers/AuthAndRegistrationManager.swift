@@ -29,16 +29,10 @@ final class AuthAndRegistrationManager {
         keychain.set(password, forKey: Keys.password.rawValue)
     }
     
-    func loadUser() {
+    func loadUser(completion: @escaping (String?, String?) -> Void) {
         let firstName = keychain.get(Keys.firstName.rawValue)
         let lastName = keychain.get(Keys.lastName.rawValue)
-        let email = keychain.get(Keys.email.rawValue)
-        let password = keychain.get(Keys.password.rawValue)
-
-        print("NAME:", firstName ?? "nil")
-        print("SURNAME:", lastName ?? "nil")
-        print("EMAIL:", email ?? "nil")
-        print("PASSWORD:", password ?? "nil")
+        completion(firstName, lastName)
     }
     
     func getEmail() -> String? {
